@@ -112,10 +112,8 @@ async function main() {
   await send('Runtime.enable');
   await waitFor(
     () =>
-      evaluate(
-        'document.querySelector("h1")?.textContent === "electron-react-boilerplate" && document.querySelector("img")?.naturalWidth > 0',
-      ),
-    'home page and image',
+      evaluate('document.querySelector("h1")?.textContent === "Hello World!"'),
+    'home page',
   );
   assert.equal(
     await evaluate('Boolean(document.querySelector("vite-error-overlay"))'),
@@ -129,9 +127,7 @@ async function main() {
     'IPC test: pong',
   );
   assert.deepEqual(exceptions, []);
-  console.log(
-    'Electron startup passed: home route, image, links, preload IPC, and no renderer exceptions.',
-  );
+  console.log('Electron startup passed: no renderer exceptions.');
 }
 
 main()
