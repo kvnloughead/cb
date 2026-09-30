@@ -119,7 +119,10 @@ async function main() {
     await evaluate('Boolean(document.querySelector("vite-error-overlay"))'),
     false,
   );
-  assert.equal(await evaluate('document.querySelectorAll("a").length'), 2);
+  assert.equal(
+    await evaluate('document.querySelector("h1")?.getAttribute("aria-label")'),
+    'cb',
+  );
   assert.equal(
     await evaluate(
       'new Promise((resolve) => { window.electron.ipcRenderer.once("ipc-example", resolve); window.electron.ipcRenderer.sendMessage("ipc-example", ["smoke-test"]); })',
