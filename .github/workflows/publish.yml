@@ -1,21 +1,27 @@
 name: Publish
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: Confirm that this workflow should publish a release
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   publish:
-    # To enable auto publishing to github, update your electron publisher
-    # config in package.json > "build" and remove the conditional below
-    if: ${{ github.repository_owner == 'electron-react-boilerplate' }}
+    if: ${{ inputs.confirm_release && github.repository_owner == 'kvnloughead' }}
 
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
 
     strategy:
+      fail-fast: false
+      max-parallel: 1
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
       - name: Checkout git repo
@@ -29,14 +35,13 @@ jobs:
 
       - name: Install and build
         run: |
-          npm install
-          npm run postinstall
+          npm ci
           npm run build
 
       - name: Publish releases
         env:
           # The APPLE_* values are used for auto updates signing
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -44,4 +49,4 @@ jobs:
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm exec electron-builder -- --publish always --win --mac --linux
+          npm exec electron-builder -- --publish always
