@@ -1,5 +1,7 @@
 # CB (Cross-platform Clipboard Manager)
 
+A clipboard manager supporting key/value pair storage.
+
 <br>
 
 <div align="center">
