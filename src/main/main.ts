@@ -15,6 +15,12 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import startAutoUpdates from './updates';
 
+// Disable hardware acceleration on Linux CI runs
+// Analogous to the --disable-gpu flag
+if (process.env.CI === 'true' && process.platform === 'linux') {
+  app.disableHardwareAcceleration();
+}
+
 let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
