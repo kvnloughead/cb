@@ -88,7 +88,7 @@ const createWindow = async () => {
 
     if (START_MINIMIZED === 'true') {
       mainWindow.minimize();
-    } else {
+    } else if (HIDE_WINDOW !== 'true') {
       mainWindow.show();
     }
   });
