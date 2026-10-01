@@ -13,7 +13,7 @@ import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
 import log from 'electron-log';
 
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import { resolveHtmlPath, getAssetPath } from './path';
 import startAutoUpdates from './updates';
 import {
   CI,
@@ -57,13 +57,6 @@ const installExtensions = async () => {
   return installExtension(REACT_DEVELOPER_TOOLS, {
     forceDownload: UPGRADE_EXTENSIONS === 'true',
   }).catch(console.log);
-};
-
-const getAssetPath = (...paths: string[]): string => {
-  const resourcesPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(app.getAppPath(), 'assets');
-  return path.join(resourcesPath, ...paths);
 };
 
 const createWindow = async () => {
