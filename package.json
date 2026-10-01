@@ -127,7 +127,7 @@
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
       "gatekeeperAssess": false,
-      "icon": "assets/icon.icns"
+      "icon": "assets/icon-clipboard.icns"
     },
     "dmg": {
       "contents": [
