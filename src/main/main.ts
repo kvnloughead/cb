@@ -9,8 +9,9 @@
  * `./release/app/dist/main/main.js` using electron-vite.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
 import log from 'electron-log';
+
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import startAutoUpdates from './updates';
@@ -58,18 +59,17 @@ const installExtensions = async () => {
   }).catch(console.log);
 };
 
+const getAssetPath = (...paths: string[]): string => {
+  const resourcesPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(app.getAppPath(), 'assets');
+  return path.join(resourcesPath, ...paths);
+};
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
   }
-
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(app.getAppPath(), 'assets');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -134,10 +134,40 @@ function onActivate() {
   }
 }
 
+let tray: Tray | null = null;
+
+function createTray() {
+  const trayIconTemplate = getAssetPath(
+    'icons',
+    'macos',
+    'clipboardTemplate.png',
+  );
+  tray = new Tray(trayIconTemplate);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show',
+      click: () => {
+        if (mainWindow === null) {
+          void createWindow().catch(reportWindowError);
+        } else {
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      },
+    },
+    { label: 'Quit', click: () => app.quit() },
+  ]);
+  tray.setToolTip('CB');
+  tray.setContextMenu(contextMenu);
+}
+
 app
   .whenReady()
   .then(async () => {
     await createWindow();
+
+    createTray();
     startAutoUpdates();
     app.on('activate', onActivate);
   })
