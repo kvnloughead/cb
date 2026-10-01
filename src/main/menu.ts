@@ -4,6 +4,7 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import { DEBUG_PROD, NODE_ENV } from './constants';
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -13,10 +14,7 @@ export default class MenuBuilder {
   }
 
   buildMenu(): Menu {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true'
-    ) {
+    if (NODE_ENV === 'development' || DEBUG_PROD === 'true') {
       this.setupDevelopmentEnvironment();
     }
 
@@ -90,9 +88,7 @@ export default class MenuBuilder {
   }
 
   buildViewTemplate(): MenuItemConstructorOptions[] {
-    const development =
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true';
+    const development = NODE_ENV === 'development' || DEBUG_PROD === 'true';
     return [
       ...(development
         ? ([
