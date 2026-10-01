@@ -30,6 +30,7 @@
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "dev": "cross-env NODE_ENV=development electron-vite dev --watch",
     "dev:hide": "cross-env HIDE_WINDOW=true NODE_ENV=development electron-vite dev --watch",
+    "debug": "PORT=1213 npm run dev -- --inspect 5858 --remoteDebuggingPort 9223",
     "test": "jest",
     "typecheck": "tsc --noEmit --incremental false",
     "test:smoke": "node .erb/scripts/smoke-test.cjs",
