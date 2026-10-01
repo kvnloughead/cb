@@ -43,7 +43,7 @@ export default defineConfig({
     plugins: [react({}), svgr()],
     server: {
       host: 'localhost',
-      port: Number(process.env.PORT || 1212),
+      port: Number(process.env['PORT'] || 1212),
       strictPort: true,
     },
     build: {
