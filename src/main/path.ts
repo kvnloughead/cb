@@ -9,3 +9,10 @@ export function resolveHtmlPath(htmlFileName: string) {
   }
   return pathToFileURL(path.join(__dirname, '../renderer', htmlFileName)).href;
 }
+
+export const getAssetPath = (...paths: string[]): string => {
+  const resourcesPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(app.getAppPath(), 'assets');
+  return path.join(resourcesPath, ...paths);
+};
