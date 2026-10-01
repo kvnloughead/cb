@@ -14,6 +14,7 @@ import log from 'electron-log';
 
 import MenuBuilder from './menu';
 import { resolveHtmlPath, getAssetPath } from './path';
+import { createTray } from './tray';
 import startAutoUpdates from './updates';
 import {
   CI,
@@ -128,31 +129,18 @@ function onActivate() {
 }
 
 let tray: Tray | null = null;
+app.on('before-quit', () => {
+  tray?.destroy();
+});
 
-function createTray() {
-  const trayIconTemplate = getAssetPath(
-    'icons',
-    'macos',
-    'clipboardTemplate.png',
-  );
-  tray = new Tray(trayIconTemplate);
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Show',
-      click: () => {
-        if (mainWindow === null) {
-          void createWindow().catch(reportWindowError);
-        } else {
-          if (mainWindow.isMinimized()) mainWindow.restore();
-          mainWindow.show();
-          mainWindow.focus();
-        }
-      },
-    },
-    { label: 'Quit', click: () => app.quit() },
-  ]);
-  tray.setToolTip('CB');
-  tray.setContextMenu(contextMenu);
+function showWindowFromTray() {
+  if (mainWindow === null) {
+    void createWindow().catch(reportWindowError);
+  } else {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  }
 }
 
 app
@@ -160,7 +148,15 @@ app
   .then(async () => {
     await createWindow();
 
-    createTray();
+    tray = createTray({
+      Tray,
+      Menu,
+      getAssetPath,
+      platform: process.platform,
+      onShow: showWindowFromTray,
+      onQuit: () => app.quit(),
+    });
+
     startAutoUpdates();
     app.on('activate', onActivate);
   })
