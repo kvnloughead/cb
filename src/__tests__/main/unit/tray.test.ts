@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import type { MenuItemConstructorOptions } from 'electron';
+import type { MenuItem, MenuItemConstructorOptions } from 'electron';
 import { createTray, type CreateTrayOptions } from '../../../main/tray';
 
 const mockTrayInstance = {
@@ -66,9 +66,19 @@ describe('createTray', () => {
 
     createTestTray('darwin', onShow, onQuit);
 
-    const menuItems = mockMenu.buildFromTemplate.mock.calls[0][0];
-    menuItems.find((item) => item.label === 'Show')?.click?.();
-    menuItems.find((item) => item.label === 'Quit')?.click?.();
+    const menuBuildCall = mockMenu.buildFromTemplate.mock.calls[0];
+    if (!menuBuildCall) {
+      throw new Error('Expected the tray menu to be built');
+    }
+    const [menuItems] = menuBuildCall;
+    const menuItem = {} as MenuItem;
+    const event = {} as KeyboardEvent;
+    menuItems
+      .find((item) => item.label === 'Show')
+      ?.click?.(menuItem, undefined, event);
+    menuItems
+      .find((item) => item.label === 'Quit')
+      ?.click?.(menuItem, undefined, event);
 
     expect(onShow).toHaveBeenCalledTimes(1);
     expect(onQuit).toHaveBeenCalledTimes(1);
