@@ -14,10 +14,19 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import startAutoUpdates from './updates';
+import {
+  CI,
+  DEBUG_PROD,
+  HIDE_WINDOW,
+  NODE_ENV,
+  START_MINIMIZED,
+  UPGRADE_EXTENSIONS,
+} from './constants';
+// import { startClipboardTracker } from './clipboard';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
-if (process.env.CI === 'true' && process.platform === 'linux') {
+if (CI === 'true' && process.platform === 'linux') {
   app.disableHardwareAcceleration();
 }
 
@@ -29,12 +38,11 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-if (process.env.NODE_ENV === 'production') {
+if (NODE_ENV === 'production') {
   process.setSourceMapsEnabled(true);
 }
 
-const isDebug =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDebug = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 
 if (isDebug) {
   void import('electron-debug')
@@ -46,7 +54,7 @@ const installExtensions = async () => {
   const { installExtension, REACT_DEVELOPER_TOOLS } =
     await import('electron-devtools-installer');
   return installExtension(REACT_DEVELOPER_TOOLS, {
-    forceDownload: !!process.env.UPGRADE_EXTENSIONS,
+    forceDownload: UPGRADE_EXTENSIONS === 'true',
   }).catch(console.log);
 };
 
@@ -77,7 +85,8 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (process.env.START_MINIMIZED) {
+
+    if (START_MINIMIZED === 'true') {
       mainWindow.minimize();
     } else {
       mainWindow.show();
