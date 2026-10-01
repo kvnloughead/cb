@@ -8,7 +8,8 @@ const windows = process.platform === 'win32';
 const child = spawn(
   windows ? 'npm.cmd' : 'npm',
   [
-    'start',
+    'run',
+    'dev',
     '--',
     '--remoteDebuggingPort',
     String(debugPort),
