@@ -13,7 +13,7 @@
     "typescriptreact"
   ],
 
-  "js/ts.validate.enabled": false,
+  "js/ts.validate.enabled": true,
   "js/ts.format.enabled": false,
 
   "search.exclude": {
