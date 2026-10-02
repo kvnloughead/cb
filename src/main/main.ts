@@ -68,7 +68,7 @@ const installExtensions = async () => {
   }).catch(console.log);
 };
 
-const createWindow = async () => {
+const createWindow = async (options: { showOnReady?: boolean } = {}) => {
   if (isDebug) {
     await installExtensions();
   }
@@ -88,9 +88,9 @@ const createWindow = async () => {
       throw new Error('"mainWindow" is not defined');
     }
 
-    if (START_MINIMIZED === 'true') {
+    if (START_MINIMIZED === 'true' && options.showOnReady !== true) {
       mainWindow.minimize();
-    } else if (HIDE_WINDOW !== 'true') {
+    } else if (options.showOnReady ?? HIDE_WINDOW !== 'true') {
       mainWindow.show();
     }
   });
@@ -131,9 +131,7 @@ function reportWindowError(error: unknown) {
 
 function onActivate() {
   // Reopening a macOS window must not initialize another updater.
-  if (mainWindow === null) {
-    void createWindow().catch(reportWindowError);
-  }
+  showWindowFromTray();
 }
 
 let tray: Tray | null = null;
@@ -145,7 +143,7 @@ app.on('before-quit', () => {
 
 function showWindowFromTray() {
   if (mainWindow === null) {
-    void createWindow().catch(reportWindowError);
+    void createWindow({ showOnReady: true }).catch(reportWindowError);
   } else {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
