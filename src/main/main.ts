@@ -9,7 +9,15 @@
  * `./release/app/dist/main/main.js` using electron-vite.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  Tray,
+  Menu,
+  clipboard,
+} from 'electron';
 import log from 'electron-log';
 
 import MenuBuilder from './menu';
@@ -24,7 +32,7 @@ import {
   START_MINIMIZED,
   UPGRADE_EXTENSIONS,
 } from './constants';
-// import { startClipboardTracker } from './clipboard';
+import { startClipboardTracker } from './clipboard';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -129,8 +137,10 @@ function onActivate() {
 }
 
 let tray: Tray | null = null;
+let stopClipboardTracker: (() => void) | null = null;
 app.on('before-quit', () => {
   tray?.destroy();
+  stopClipboardTracker?.();
 });
 
 function showWindowFromTray() {
@@ -155,6 +165,11 @@ app
       platform: process.platform,
       onShow: showWindowFromTray,
       onQuit: () => app.quit(),
+    });
+
+    stopClipboardTracker = await startClipboardTracker({
+      readText: () => clipboard.readText(),
+      addToHistory: () => {},
     });
 
     startAutoUpdates();
