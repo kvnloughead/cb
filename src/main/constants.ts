@@ -5,3 +5,4 @@ export const HIDE_WINDOW = process.env['HIDE_WINDOW'] ?? 'false';
 export const NODE_ENV = process.env['NODE_ENV'] ?? '';
 export const START_MINIMIZED = process.env['START_MINIMIZED'] ?? 'false';
 export const UPGRADE_EXTENSIONS = process.env['UPGRADE_EXTENSIONS'] ?? 'false';
+export const MAX_CLIP_HISTORY = process.env['MAX_CLIP_HISTORY'] ?? 10_000;

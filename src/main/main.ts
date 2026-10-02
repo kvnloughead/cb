@@ -28,11 +28,13 @@ import {
   CI,
   DEBUG_PROD,
   HIDE_WINDOW,
+  MAX_CLIP_HISTORY,
   NODE_ENV,
   START_MINIMIZED,
   UPGRADE_EXTENSIONS,
 } from './constants';
 import { startClipboardTracker } from './clipboard';
+import ClipHistoryDB from './database/clip-history';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -48,12 +50,23 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+ipcMain.on('ipc-example', async (event, arg) => {
+  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
+  console.log(msgTemplate(arg));
+  event.reply('ipc-example', msgTemplate('pong'));
+});
+
 if (NODE_ENV === 'production') {
   process.setSourceMapsEnabled(true);
 }
 
-const isDebug = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+if (app.isPackaged) {
+  app.setName('cb');
+} else {
+  app.setName('cb-dev');
+}
 
+const isDebug = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 if (isDebug) {
   void import('electron-debug')
     .then(({ default: debug }) => debug())
@@ -111,18 +124,6 @@ const createWindow = async (options: { showOnReady?: boolean } = {}) => {
   await mainWindow.loadURL(resolveHtmlPath('index.html'));
 };
 
-/**
- * Add event listeners...
- */
-
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
 function reportWindowError(error: unknown) {
   log.error('Failed to create the application window', error);
   mainWindow?.destroy();
@@ -136,9 +137,15 @@ function onActivate() {
 
 let tray: Tray | null = null;
 let stopClipboardTracker: (() => void) | null = null;
+
 app.on('before-quit', () => {
   tray?.destroy();
   stopClipboardTracker?.();
+});
+
+app.on('window-all-closed', () => {
+  // The app remains running in the background for tray/clipboard monitoring.
+  // The user must choose Quit from the tray or menu to fully exit.
 });
 
 function showWindowFromTray() {
@@ -165,9 +172,18 @@ app
       onQuit: () => app.quit(),
     });
 
+    const clipboardHistoryDbPath = path.join(
+      app.getPath('userData'),
+      'clip-history.db',
+    );
+    const clipHistoryDB = new ClipHistoryDB(
+      clipboardHistoryDbPath,
+      Number(MAX_CLIP_HISTORY),
+    );
+
     stopClipboardTracker = await startClipboardTracker({
-      readText: () => clipboard.readText(),
-      addToHistory: () => {},
+      readText: clipboard.readText,
+      addToHistory: clipHistoryDB.addClip,
     });
 
     startAutoUpdates();
