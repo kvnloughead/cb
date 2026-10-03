@@ -2,7 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'load-clip-history';
+export type Channels = 'load-clip-history' | 'filter-clip-history';
 
 const electronHandler = {
   ipcRenderer: {

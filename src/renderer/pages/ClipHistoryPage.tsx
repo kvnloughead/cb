@@ -5,6 +5,7 @@ import ClipHistoryContext from '../contexts/ClipHistoryContext';
 
 export default function ClipHistoryPage() {
   const [clips, setClips] = useState<Clip[]>([]);
+  const [filterQuery, setFilterQuery] = useState<string>('');
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -21,7 +22,7 @@ export default function ClipHistoryPage() {
   }, []);
 
   return (
-    <ClipHistoryContext.Provider value={{ clips, filterClips: () => {} }}>
+    <ClipHistoryContext.Provider value={{ clips, filterQuery, setFilterQuery }}>
       <Header />
       <main className="main">
         <ClipHistoryList />

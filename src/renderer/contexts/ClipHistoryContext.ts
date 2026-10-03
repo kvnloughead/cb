@@ -2,12 +2,14 @@ import { createContext } from 'react';
 
 type ClipHistoryContextType = {
   clips: Clip[];
-  filterClips: (query: string) => void;
+  filterQuery: string;
+  setFilterQuery: (query: string) => void;
 };
 
 const clipHistoryDefaults = {
   clips: [],
-  filterClips: () => {},
+  filterQuery: '',
+  setFilterQuery: () => {},
 };
 
 const ClipHistoryContext =

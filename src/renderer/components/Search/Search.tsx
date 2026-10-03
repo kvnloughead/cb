@@ -7,11 +7,11 @@ type SearchPropTypes = {
 };
 
 export default function Search({ placeholder, onChange }: SearchPropTypes) {
-  const [query, setQuery] = useState<string>('');
+  const [value, setValue] = useState<string>('');
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const newValue = e.target.value;
-    setQuery(newValue);
+    setValue(newValue);
     onChange(newValue);
   }
 
@@ -23,7 +23,7 @@ export default function Search({ placeholder, onChange }: SearchPropTypes) {
       <input
         id="search-input"
         type="text"
-        value={query}
+        value={value}
         onChange={handleChange}
         placeholder={placeholder || 'Type to search'}
       />
