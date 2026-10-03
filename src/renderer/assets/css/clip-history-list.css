@@ -1,0 +1,13 @@
+.clip-history-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.clip-history-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
