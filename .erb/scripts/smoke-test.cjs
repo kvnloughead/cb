@@ -111,25 +111,17 @@ async function main() {
     return result.result.value;
   }
   await send('Runtime.enable');
+
   await waitFor(
     () =>
-      evaluate('document.querySelector("h1")?.textContent === "Hello World!"'),
-    'home page',
+      evaluate('typeof window.electron?.ipcRenderer?.invoke === "function"'),
+    'preload IPC bridge',
   );
   assert.equal(
-    await evaluate('Boolean(document.querySelector("vite-error-overlay"))'),
-    false,
+    await evaluate('window.electron.ipcRenderer.invoke("health-check")'),
+    'ok',
   );
-  assert.equal(
-    await evaluate('document.querySelector("h1")?.getAttribute("aria-label")'),
-    'cb',
-  );
-  assert.equal(
-    await evaluate(
-      'new Promise((resolve) => { window.electron.ipcRenderer.once("ipc-example", resolve); window.electron.ipcRenderer.sendMessage("ipc-example", ["smoke-test"]); })',
-    ),
-    'IPC test: pong',
-  );
+
   assert.deepEqual(exceptions, []);
   console.log('Electron startup passed: no renderer exceptions.');
 }

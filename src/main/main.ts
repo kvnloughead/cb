@@ -44,17 +44,7 @@ if (CI === 'true' && process.platform === 'linux') {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
+ipcMain.handle('health-check', () => 'ok');
 
 if (NODE_ENV === 'production') {
   process.setSourceMapsEnabled(true);
@@ -94,6 +84,10 @@ const createWindow = async (options: { showOnReady?: boolean } = {}) => {
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
     },
+  });
+
+  mainWindow.webContents.on('preload-error', (_event, preloadPath, error) => {
+    log.error(`Failed to load preload script at ${preloadPath}`, error);
   });
 
   mainWindow.on('ready-to-show', () => {

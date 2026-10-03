@@ -3,7 +3,10 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels =
-  'load-clip-history' | 'filter-clip-history' | 'add-to-clipboard';
+  | 'health-check'
+  | 'load-clip-history'
+  | 'filter-clip-history'
+  | 'add-to-clipboard';
 
 const electronHandler = {
   ipcRenderer: {
