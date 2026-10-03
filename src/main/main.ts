@@ -186,6 +186,15 @@ app
       addToHistory: clipHistoryDB.addClip,
     });
 
+    ipcMain.handle('load-clip-history', async () => {
+      try {
+        return clipHistoryDB.getAllClips();
+      } catch (error) {
+        console.error('Database fetch failed:', error);
+        throw error;
+      }
+    });
+
     startAutoUpdates();
     app.on('activate', onActivate);
   })

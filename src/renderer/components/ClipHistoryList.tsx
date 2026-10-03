@@ -12,7 +12,7 @@ export default function ClipHistoryList({ history }: ClipHistoryListProps) {
     <ul className="clip-history-list">
       {history.map((clip, i) => (
         <li key={clip.id}>
-          <p>{clip.content}</p>
+          <p className="truncate-line">{clip.content}</p>
           <button
             type="button"
             className="clip-number"
