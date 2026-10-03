@@ -1,4 +1,5 @@
 import { ChangeEvent, useState } from 'react';
+import './Search.css';
 
 type SearchPropTypes = {
   placeholder?: string;

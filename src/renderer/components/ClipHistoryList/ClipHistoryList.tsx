@@ -1,3 +1,5 @@
+import './ClipHistoryList.css';
+
 type Clip = {
   id: number;
   content: string;

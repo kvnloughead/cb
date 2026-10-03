@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Header from '../components/Header';
-import ClipHistoryList from '../components/ClipHistoryList';
+import Header from '../components/Header/Header';
+import ClipHistoryList from '../components/ClipHistoryList/ClipHistoryList';
 
 type Clip = {
   id: number;

@@ -1,4 +1,5 @@
-import Search from './Search';
+import Search from '../Search/Search';
+import './Header.css';
 
 export default function Header() {
   return (
