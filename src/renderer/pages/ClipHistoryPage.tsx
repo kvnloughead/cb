@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header/Header';
 import ClipHistoryList from '../components/ClipHistoryList/ClipHistoryList';
-
-type Clip = {
-  id: number;
-  content: string;
-};
+import ClipHistoryContext from '../contexts/ClipHistoryContext';
 
 export default function ClipHistoryPage() {
-  const [history, setHistory] = useState<Clip[]>([]);
+  const [clips, setClips] = useState<Clip[]>([]);
 
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const clips =
+        const initialClips =
           await window.electron.ipcRenderer.invoke('load-clip-history');
-        setHistory(clips as Clip[]);
+        setClips(initialClips);
       } catch (error) {
         console.error('Failed to load clip history:', error);
       }
@@ -25,11 +21,11 @@ export default function ClipHistoryPage() {
   }, []);
 
   return (
-    <>
+    <ClipHistoryContext.Provider value={{ clips, filterClips: () => {} }}>
       <Header />
       <main className="main">
-        <ClipHistoryList history={history} />
+        <ClipHistoryList />
       </main>
-    </>
+    </ClipHistoryContext.Provider>
   );
 }

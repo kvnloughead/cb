@@ -1,18 +1,12 @@
+import { useContext } from 'react';
+import ClipHistoryContext from '../../contexts/ClipHistoryContext';
 import './ClipHistoryList.css';
 
-type Clip = {
-  id: number;
-  content: string;
-};
-
-type ClipHistoryListProps = {
-  history: Clip[];
-};
-
-export default function ClipHistoryList({ history }: ClipHistoryListProps) {
+export default function ClipHistoryList() {
+  const { clips } = useContext(ClipHistoryContext);
   return (
     <ul className="clip-history-list">
-      {history.map((clip, i) => (
+      {clips.map((clip, i) => (
         <li key={clip.id}>
           <p className="truncate-line">{clip.content}</p>
           <button
