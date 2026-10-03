@@ -195,6 +195,14 @@ app
       }
     });
 
+    ipcMain.on('add-to-clipboard', async (_, content) => {
+      try {
+        await clipboard.writeText(content);
+      } catch (e) {
+        console.error('Failed to add to clipboard', e);
+      }
+    });
+
     startAutoUpdates();
     app.on('activate', onActivate);
   })

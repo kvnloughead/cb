@@ -6,8 +6,10 @@
   gap: 12px;
 }
 
-.clip-history-list li {
+.clip-history-list .select-clip-btn {
   display: flex;
   justify-content: space-between;
   gap: 20px;
+  width: 100%;
+  text-align: left;
 }
