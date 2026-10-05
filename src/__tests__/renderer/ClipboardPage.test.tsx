@@ -23,6 +23,7 @@ describe('ClipHistoryPage', () => {
         ipcRenderer: {
           invoke,
           sendMessage: jest.fn(),
+          on: jest.fn(),
         },
       },
     });

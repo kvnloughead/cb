@@ -12,6 +12,7 @@ describe('App', () => {
             .fn()
             .mockResolvedValue([{ id: 1, content: 'app test clip' }]),
           sendMessage: jest.fn(),
+          on: jest.fn(),
         },
       },
     });
