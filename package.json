@@ -22,6 +22,7 @@
   },
   "main": "./release/app/dist/main/main.js",
   "scripts": {
+    "prepare": "node scripts/install-hooks.cjs",
     "build": "electron-vite build",
     "postinstall": "npm --prefix .erb/tooling ci && install-electron && electron-builder install-app-deps",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx,.cjs",
@@ -32,6 +33,8 @@
     "dev:hide": "cross-env HIDE_WINDOW=true NODE_ENV=development electron-vite dev --watch",
     "debug": "PORT=1213 npm run dev -- --inspect 5858 --remoteDebuggingPort 9223",
     "test": "jest",
+    "format:check": "prettier --check .",
+    "ci": "npm run format:check && npm run lint && npm run typecheck && npm test -- --runInBand && npm run build && npm run test:smoke",
     "typecheck": "tsc --noEmit --incremental false",
     "test:smoke": "node .erb/scripts/smoke-test.cjs",
     "preview": "electron-vite preview"
