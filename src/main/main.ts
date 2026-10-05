@@ -177,7 +177,10 @@ app
 
     stopClipboardTracker = await startClipboardTracker({
       readText: clipboard.readText,
-      addToHistory: clipHistoryDB.addClip,
+      addToHistory: (content: string) => {
+        const newClip = clipHistoryDB.addClip(content);
+        mainWindow?.webContents.send('update-clip-history', newClip);
+      },
     });
 
     ipcMain.handle('load-clip-history', async () => {
