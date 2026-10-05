@@ -6,6 +6,7 @@ import ClipHistoryContext from '../contexts/ClipHistoryContext';
 export default function ClipHistoryPage() {
   const [clips, setClips] = useState<Clip[]>([]);
   const [filterQuery, setFilterQuery] = useState<string>('');
+  const [loadError, setLoadError] = useState<string>('');
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -14,7 +15,8 @@ export default function ClipHistoryPage() {
           await window.electron.ipcRenderer.invoke('load-clip-history');
         setClips(initialClips);
       } catch (error) {
-        console.error('Failed to load clip history:', error);
+        setLoadError('Failed to load clipboard history');
+        console.error('Failed to load clipboard history:', error);
       }
     };
 
@@ -25,7 +27,13 @@ export default function ClipHistoryPage() {
     <ClipHistoryContext.Provider value={{ clips, filterQuery, setFilterQuery }}>
       <Header />
       <main className="main">
-        <ClipHistoryList />
+        {loadError ? (
+          <p role="alert" className="error-msg">
+            {loadError}
+          </p>
+        ) : (
+          <ClipHistoryList />
+        )}
       </main>
     </ClipHistoryContext.Provider>
   );
