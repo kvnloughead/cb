@@ -7,7 +7,7 @@
 
 .search-container::before {
   content: '';
-  background-image: url(../images/search-icon.webp);
+  background-image: url(../../assets/images/search-icon.webp);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
