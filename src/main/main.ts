@@ -56,6 +56,10 @@ if (app.isPackaged) {
   app.setName('cb-dev');
 }
 
+if (process.env['CB_TEST_USER_DATA']) {
+  app.setPath('userData', path.resolve(process.env['CB_TEST_USER_DATA']));
+}
+
 const isDebug = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 if (isDebug) {
   void import('electron-debug')

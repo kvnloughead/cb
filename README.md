@@ -46,6 +46,7 @@ Runtime dependencies belong in `release/app/package.json`, and the rest go in th
 - `npm run preview`: build and launch the production bundles locally.
 - `npm run package`: build installers with electron-builder.
 - `npm run test:smoke`: verify development startup and preload IPC.
+- `npm run test:packaged`: build and launch the unpacked packaged app, verify IPC and keyboard shortcuts, then restart it to verify clipboard history persistence. Run this under `xvfb-run` on Linux.
 
 ## Keyboard shortcuts
 
