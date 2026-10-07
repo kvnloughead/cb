@@ -155,17 +155,6 @@ function showWindowFromTray() {
 app
   .whenReady()
   .then(async () => {
-    await createWindow();
-
-    tray = createTray({
-      Tray,
-      Menu,
-      getAssetPath,
-      platform: process.platform,
-      onShow: showWindowFromTray,
-      onQuit: () => app.quit(),
-    });
-
     const clipboardHistoryDbPath = path.join(
       app.getPath('userData'),
       'clip-history.db',
@@ -174,14 +163,6 @@ app
       clipboardHistoryDbPath,
       Number(MAX_CLIP_HISTORY),
     );
-
-    stopClipboardTracker = await startClipboardTracker({
-      readText: clipboard.readText,
-      addToHistory: (content: string) => {
-        const newClip = clipHistoryDB.addClip(content);
-        mainWindow?.webContents.send('update-clip-history', newClip);
-      },
-    });
 
     ipcMain.handle('load-clip-history', async () => {
       try {
@@ -198,6 +179,25 @@ app
       } catch (e) {
         console.error('Failed to add to clipboard', e);
       }
+    });
+
+    await createWindow();
+
+    tray = createTray({
+      Tray,
+      Menu,
+      getAssetPath,
+      platform: process.platform,
+      onShow: showWindowFromTray,
+      onQuit: () => app.quit(),
+    });
+
+    stopClipboardTracker = await startClipboardTracker({
+      readText: clipboard.readText,
+      addToHistory: (content: string) => {
+        const newClip = clipHistoryDB.addClip(content);
+        mainWindow?.webContents.send('update-clip-history', newClip);
+      },
     });
 
     startAutoUpdates();

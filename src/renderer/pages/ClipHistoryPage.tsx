@@ -3,6 +3,12 @@ import Header from '../components/Header/Header';
 import ClipHistoryList from '../components/ClipHistoryList/ClipHistoryList';
 import ClipHistoryContext from '../contexts/ClipHistoryContext';
 
+function isValidClip(clip: unknown): clip is Clip {
+  if (typeof clip !== 'object' || clip === null) return false;
+  const obj = clip as Record<string, unknown>;
+  return typeof obj['id'] === 'number' && typeof obj['content'] === 'string';
+}
+
 export default function ClipHistoryPage() {
   const [clips, setClips] = useState<Clip[]>([]);
   const [filterQuery, setFilterQuery] = useState<string>('');
@@ -23,21 +29,18 @@ export default function ClipHistoryPage() {
     void loadHistory();
   }, []);
 
-  function isValidClip(clip: unknown): clip is Clip {
-    if (typeof clip !== 'object' || clip === null) return false;
-    const obj = clip as Record<string, unknown>;
-    return typeof obj['id'] === 'number' && typeof obj['content'] === 'string';
-  }
-
-  window.electron.ipcRenderer.on(
-    'update-clip-history',
-    (...args: unknown[]) => {
-      const newClip = args[0];
-      if (!isValidClip(newClip)) return;
-      const newClips = clips.filter((clip) => clip.content !== newClip.content);
-      if (newClips.length) setClips([newClip, ...newClips]);
-    },
-  );
+  useEffect(() => {
+    return window.electron.ipcRenderer.on(
+      'update-clip-history',
+      (newClip: unknown) => {
+        if (!isValidClip(newClip)) return;
+        setClips((currentClips) => [
+          newClip,
+          ...currentClips.filter((clip) => clip.content !== newClip.content),
+        ]);
+      },
+    );
+  }, []);
 
   return (
     <ClipHistoryContext.Provider value={{ clips, filterQuery, setFilterQuery }}>
