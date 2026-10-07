@@ -17,6 +17,7 @@ import {
   Tray,
   Menu,
   clipboard,
+  globalShortcut,
 } from 'electron';
 import log from 'electron-log';
 
@@ -156,6 +157,12 @@ function showWindowFromTray() {
   }
 }
 
+function initializeShortcuts() {
+  globalShortcut.register('CommandOrControl+Shift+D', async () => {
+    await createWindow();
+  });
+}
+
 app
   .whenReady()
   .then(async () => {
@@ -204,6 +211,7 @@ app
       },
     });
 
+    initializeShortcuts();
     startAutoUpdates();
     app.on('activate', onActivate);
   })
