@@ -46,3 +46,7 @@ Runtime dependencies belong in `release/app/package.json`, and the rest go in th
 - `npm run preview`: build and launch the production bundles locally.
 - `npm run package`: build installers with electron-builder.
 - `npm run test:smoke`: verify development startup and preload IPC.
+
+## Keyboard shortcuts
+
+Renderer shortcut defaults, registration, and extension guidance are documented in [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md).

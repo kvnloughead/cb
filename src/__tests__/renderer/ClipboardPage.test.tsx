@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
 import ClipHistoryPage from '../../renderer/pages/ClipHistoryPage';
 
 const clips = [
@@ -11,6 +12,14 @@ const clips = [
 const invoke = jest.fn();
 let consoleError: jest.SpyInstance;
 
+function renderClipboardPage() {
+  return render(
+    <ShortcutProvider>
+      <ClipHistoryPage />
+    </ShortcutProvider>,
+  );
+}
+
 describe('ClipHistoryPage', () => {
   beforeEach(() => {
     consoleError = jest.spyOn(console, 'error');
@@ -20,6 +29,7 @@ describe('ClipHistoryPage', () => {
     Object.defineProperty(window, 'electron', {
       configurable: true,
       value: {
+        platform: 'darwin',
         ipcRenderer: {
           invoke,
           sendMessage: jest.fn(),
@@ -34,7 +44,7 @@ describe('ClipHistoryPage', () => {
   });
 
   it('renders the header inside ClipboardHistoryPage', async () => {
-    render(<ClipHistoryPage />);
+    renderClipboardPage();
     await screen.findByText('first test clip');
 
     const header = document.querySelector('header');
@@ -44,7 +54,7 @@ describe('ClipHistoryPage', () => {
   });
 
   it('renders ClipHistoryList inside ClipboardHistoryPage', async () => {
-    render(<ClipHistoryPage />);
+    renderClipboardPage();
     await screen.findByText('first test clip');
 
     const clipList = document.querySelector('.main ul.clip-history-list');
@@ -52,7 +62,7 @@ describe('ClipHistoryPage', () => {
   });
 
   it('loads clips from the database on startup', async () => {
-    render(<ClipHistoryPage />);
+    renderClipboardPage();
     expect(
       await screen.findByRole('button', { name: 'select clip 1' }),
     ).toBeInTheDocument();
@@ -60,7 +70,7 @@ describe('ClipHistoryPage', () => {
   });
 
   it('filters listed clips according to search query', async () => {
-    render(<ClipHistoryPage />);
+    renderClipboardPage();
     await screen.findByText('first test clip');
 
     const searchInput: HTMLInputElement = screen.getByRole('textbox', {
@@ -84,8 +94,8 @@ describe('ClipHistoryPage', () => {
     expect(screen.getByText('third test clip')).toBeInTheDocument();
   });
 
-  it("calls addToClipboard when a clip's button is clicked", async () => {
-    render(<ClipHistoryPage />);
+  it("sends 'add-to-clipboard' when a clip's button is clicked", async () => {
+    renderClipboardPage();
     const clipSelectBtn = await screen.findByRole('button', {
       name: 'select clip 1',
     });
@@ -97,11 +107,33 @@ describe('ClipHistoryPage', () => {
     );
   });
 
+  it("sends 'add-to-clipboard' when the appropriate keyboard shortcut is used", async () => {
+    renderClipboardPage();
+    await screen.findByText('first test clip');
+
+    for (const [key, code, content] of [
+      ['1', 'Digit1', 'first test clip'],
+      ['2', 'Digit2', 'second test clip'],
+    ] as const) {
+      jest.clearAllMocks();
+      fireEvent.keyDown(document, { key, code, metaKey: true });
+      expect(window.electron.ipcRenderer.sendMessage).toHaveBeenCalledTimes(1);
+      expect(window.electron.ipcRenderer.sendMessage).toHaveBeenCalledWith(
+        'add-to-clipboard',
+        content,
+      );
+
+      jest.clearAllMocks();
+      fireEvent.keyDown(document, { key, code, ctrlKey: true });
+      expect(window.electron.ipcRenderer.sendMessage).not.toHaveBeenCalled();
+    }
+  });
+
   it("displays and logs an error message if clips can't be loaded", async () => {
     consoleError.mockImplementation(() => {});
 
     invoke.mockRejectedValue(new Error('Database unavailable'));
-    render(<ClipHistoryPage />);
+    renderClipboardPage();
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Failed to load clipboard history',
