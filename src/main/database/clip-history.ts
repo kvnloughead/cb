@@ -19,7 +19,7 @@ type Row = {
 export default class ClipHistoryDB {
   DB: DatabaseType;
   private _maxSize: number;
-  private _insertClipAndTrim: (text: string) => void;
+  private _insertClipAndTrim: (text: string) => Clip | null;
 
   /**
    * Creates a clipboard history database at the given SQLite path.
@@ -34,7 +34,7 @@ export default class ClipHistoryDB {
     }
     this.DB = new Database(dbPath);
     this._maxSize = maxSize;
-    this._insertClipAndTrim = () => {};
+    this._insertClipAndTrim = () => null;
     this._init();
   }
 
@@ -56,7 +56,10 @@ export default class ClipHistoryDB {
       'DELETE FROM clipboard_history WHERE content = ?',
     );
     const insert = this.DB.prepare<[string]>(
-      'INSERT INTO clipboard_history (content) VALUES (?)',
+      `
+      INSERT INTO clipboard_history (content) VALUES (?)
+      RETURNING *;
+      `,
     );
 
     const trim = this.DB.prepare<[number]>(
@@ -71,13 +74,17 @@ export default class ClipHistoryDB {
       `,
     );
 
-    this._insertClipAndTrim = this.DB.transaction((text: string) => {
-      if (getLatest.get()?.content === text) return;
+    this._insertClipAndTrim = this.DB.transaction(
+      (text: string): Clip | null => {
+        if (getLatest.get()?.content === text) return null;
 
-      deleteDuplicate.run(text);
-      insert.run(text);
-      trim.run(this._maxSize);
-    });
+        deleteDuplicate.run(text);
+        const newClip = insert.get(text) as Clip;
+        trim.run(this._maxSize);
+
+        return newClip;
+      },
+    );
   };
 
   /**
@@ -117,9 +124,9 @@ export default class ClipHistoryDB {
    *
    * @param text Clipboard text to store.
    */
-  addClip = (text: string) => {
-    if (!text.trim()) return;
-    this._insertClipAndTrim(text);
+  addClip = (text: string): Clip | null => {
+    if (!text.trim()) return null;
+    return this._insertClipAndTrim(text);
   };
 
   /**

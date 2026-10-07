@@ -1,0 +1,24 @@
+.app {
+  position: relative;
+  background-color: #efefef;
+  color: #1a1a1a;
+  height: 100vh;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app main {
+  width: 100%;
+  height: 100%;
+}
+
+.app .error-msg {
+  text-align: center;
+}

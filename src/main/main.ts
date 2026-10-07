@@ -44,17 +44,7 @@ if (CI === 'true' && process.platform === 'linux') {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
+ipcMain.handle('health-check', () => 'ok');
 
 if (NODE_ENV === 'production') {
   process.setSourceMapsEnabled(true);
@@ -64,6 +54,10 @@ if (app.isPackaged) {
   app.setName('cb');
 } else {
   app.setName('cb-dev');
+}
+
+if (process.env['CB_TEST_USER_DATA']) {
+  app.setPath('userData', path.resolve(process.env['CB_TEST_USER_DATA']));
 }
 
 const isDebug = NODE_ENV === 'development' || DEBUG_PROD === 'true';
@@ -94,6 +88,10 @@ const createWindow = async (options: { showOnReady?: boolean } = {}) => {
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
     },
+  });
+
+  mainWindow.webContents.on('preload-error', (_event, preloadPath, error) => {
+    log.error(`Failed to load preload script at ${preloadPath}`, error);
   });
 
   mainWindow.on('ready-to-show', () => {
@@ -161,6 +159,32 @@ function showWindowFromTray() {
 app
   .whenReady()
   .then(async () => {
+    const clipboardHistoryDbPath = path.join(
+      app.getPath('userData'),
+      'clip-history.db',
+    );
+    const clipHistoryDB = new ClipHistoryDB(
+      clipboardHistoryDbPath,
+      Number(MAX_CLIP_HISTORY),
+    );
+
+    ipcMain.handle('load-clip-history', async () => {
+      try {
+        return clipHistoryDB.getAllClips();
+      } catch (error) {
+        console.error('Database fetch failed:', error);
+        throw error;
+      }
+    });
+
+    ipcMain.on('add-to-clipboard', async (_, content) => {
+      try {
+        await clipboard.writeText(content);
+      } catch (e) {
+        console.error('Failed to add to clipboard', e);
+      }
+    });
+
     await createWindow();
 
     tray = createTray({
@@ -172,18 +196,12 @@ app
       onQuit: () => app.quit(),
     });
 
-    const clipboardHistoryDbPath = path.join(
-      app.getPath('userData'),
-      'clip-history.db',
-    );
-    const clipHistoryDB = new ClipHistoryDB(
-      clipboardHistoryDbPath,
-      Number(MAX_CLIP_HISTORY),
-    );
-
     stopClipboardTracker = await startClipboardTracker({
       readText: clipboard.readText,
-      addToHistory: clipHistoryDB.addClip,
+      addToHistory: (content: string) => {
+        const newClip = clipHistoryDB.addClip(content);
+        mainWindow?.webContents.send('update-clip-history', newClip);
+      },
     });
 
     startAutoUpdates();

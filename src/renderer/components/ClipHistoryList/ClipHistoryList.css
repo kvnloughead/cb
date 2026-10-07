@@ -1,0 +1,19 @@
+.clip-history-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  gap: 12px;
+}
+
+.clip-history-list .select-clip-btn {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.clip-history-list .pagination {
+  margin-top: auto;
+}
