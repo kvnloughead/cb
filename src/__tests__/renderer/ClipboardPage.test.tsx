@@ -3,11 +3,14 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
 import ClipHistoryPage from '../../renderer/pages/ClipHistoryPage';
 
-const clips = [
+const clips: Clip[] = [
   { id: 1, content: 'first test clip' },
   { id: 2, content: 'second test clip' },
   { id: 3, content: 'third test clip' },
 ];
+for (let i = 4; i <= 10; i++) {
+  clips.push({ id: i, content: `test clip #${i}` });
+}
 
 const invoke = jest.fn();
 let consoleError: jest.SpyInstance;
@@ -143,5 +146,20 @@ describe('ClipHistoryPage', () => {
       'Failed to load clipboard history:',
       new Error('Database unavailable'),
     );
+  });
+
+  it('adds numbered buttons for only the first 9 items', async () => {
+    renderClipboardPage();
+    await screen.findByRole('button', { name: 'select clip 1' });
+
+    for (let i = 1; i <= 9; i++) {
+      expect(
+        screen.getByRole('button', { name: `select clip ${i}` }),
+      ).toBeInTheDocument();
+    }
+
+    expect(
+      screen.queryByRole('button', { name: 'select clip 10' }),
+    ).not.toBeInTheDocument();
   });
 });

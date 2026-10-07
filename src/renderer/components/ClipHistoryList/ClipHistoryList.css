@@ -6,12 +6,26 @@
   gap: 12px;
 }
 
-.clip-history-list .select-clip-btn {
+.clip-history-list li {
   display: flex;
   justify-content: space-between;
   gap: 20px;
   width: 100%;
-  text-align: left;
+  position: relative;
+}
+
+.clip-history-list li .text {
+  z-index: 1;
+  max-width: 90%;
+}
+
+.clip-history-list .select-clip-btn {
+  /* display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  text-align: left; */
+  position: absolute;
+  inset: 0;
 }
 
 .clip-history-list .pagination {

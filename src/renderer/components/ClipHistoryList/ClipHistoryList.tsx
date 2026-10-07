@@ -49,17 +49,21 @@ export default function ClipHistoryList() {
     <ul className="clip-history-list">
       {currentItems.map((clip, i) => (
         <li key={clip.id}>
-          <button
-            type="button"
-            className="select-clip-btn"
-            aria-label={`select clip ${i + 1}`}
-            onClick={() => addToClipboard(clip.content)}
-          >
-            <p className="truncate-line">{clip.content}</p>
-            <p>
-              {isMac ? '⌘' : '⌃'}&nbsp;{i + 1}
-            </p>
-          </button>
+          <p className="truncate-line text">{clip.content}</p>
+
+          {i + 1 < 10 && (
+            <>
+              <p className="text">
+                {isMac ? '⌘' : '⌃'}&nbsp;{i + 1}
+              </p>
+              <button
+                type="button"
+                className="select-clip-btn"
+                aria-label={`select clip ${i + 1}`}
+                onClick={() => addToClipboard(clip.content)}
+              ></button>
+            </>
+          )}
         </li>
       ))}
       <Pagination
