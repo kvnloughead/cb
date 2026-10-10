@@ -16,6 +16,18 @@ const profileRoot = fs.mkdtempSync(
 const userDataPath = path.join(profileRoot, 'user-data');
 fs.mkdirSync(userDataPath);
 
+async function cleanupProfile(dirPath, retries = 5, delayMs = 200) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      fs.rmSync(dirPath, { recursive: true, force: true });
+      return; // Success!
+    } catch (error) {
+      if (i === retries - 1) throw error; // Out of retries, throw the final error
+      await delay(delayMs); // Wait before retrying
+    }
+  }
+}
+
 /** Finds the unpacked executable produced for the current host platform. */
 function findExecutable() {
   const candidates =
@@ -412,7 +424,7 @@ async function main() {
   } finally {
     client?.socket.close();
     await stopApp(child);
-    fs.rmSync(profileRoot, { recursive: true, force: true });
+    cleanupProfile(profileRoot);
   }
 }
 
