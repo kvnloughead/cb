@@ -1,11 +1,22 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { MAX_CLIP_HISTORY } from '../main/constants';
 
-export type Channels = 'ipc-example';
+export type Channels =
+  | 'health-check'
+  | 'load-clip-history'
+  | 'filter-clip-history'
+  | 'add-to-clipboard'
+  | 'update-clip-history';
 
 const electronHandler = {
+  platform: process.platform,
+  maxClipHistory: MAX_CLIP_HISTORY,
   ipcRenderer: {
+    invoke(channel: Channels, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, ...args);
+    },
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);
     },

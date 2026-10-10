@@ -27,19 +27,10 @@ jobs:
         run: |
           npm ci
 
-      - name: npm test
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run package
-          npm run lint
-          npm exec tsc -- --noEmit
-          npm test
-
-      - name: Verify Electron startup (Linux)
+      - name: Run CI (Linux)
         if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum npm run test:smoke
+        run: xvfb-run --auto-servernum npm run ci
 
-      - name: Verify Electron startup (macOS and Windows)
+      - name: Run CI (macOS and Windows)
         if: runner.os != 'Linux'
-        run: npm run test:smoke
+        run: npm run ci

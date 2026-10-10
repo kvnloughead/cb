@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+if [ "$(uname -s)" = "Linux" ] && command -v xvfb-run >/dev/null 2>&1; then
+  exec xvfb-run --auto-servernum npm run ci
+fi
+
+exec npm run ci

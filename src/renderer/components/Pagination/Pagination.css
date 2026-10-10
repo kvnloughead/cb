@@ -1,0 +1,37 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+
+  .page-number-btns {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .page-number-btn {
+    padding: 8px 12px;
+    background-color: #efefef;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    color: #1a1a1a;
+  }
+
+  .page-number-btn.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .next-or-previous-btn {
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .next-or-previous-btn.current-page {
+    cursor: not-allowed;
+  }
+}

@@ -5,7 +5,12 @@ import log from 'electron-log';
 let started = false;
 
 export default function startAutoUpdates(): void {
-  if (!app.isPackaged || started) return;
+  if (
+    !app.isPackaged ||
+    process.env['CB_DISABLE_AUTO_UPDATES'] === 'true' ||
+    started
+  )
+    return;
   started = true;
   log.transports.file.level = 'info';
   autoUpdater.logger = log;

@@ -27,7 +27,7 @@ export function createTray({
   const tray = new Tray(iconPath);
   const trayActions: MenuItemConstructorOptions[] = [
     { label: 'Show', click: onShow },
-    { label: 'Quit', click: onQuit },
+    { label: 'Quit', click: onQuit, accelerator: 'CommandOrControl+Q' },
   ];
   const contextMenu = Menu.buildFromTemplate(trayActions);
 
