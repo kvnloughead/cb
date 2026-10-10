@@ -76,7 +76,7 @@ describe('ClipHistoryPage', () => {
     renderClipboardPage();
     await screen.findByText('first test clip');
 
-    const searchInput: HTMLInputElement = screen.getByRole('textbox', {
+    const searchInput: HTMLInputElement = screen.getByRole('searchbox', {
       name: 'Type to search',
     });
     fireEvent.change(searchInput, {

@@ -245,7 +245,7 @@ async function waitForClip(client, child, content) {
 }
 
 /** Sends a platform-correct CommandOrControl+number key event through CDP. */
-async function dispatchShortcut(client, number) {
+async function dispatchNumberWithModifier(client, number) {
   const modifiers = process.platform === 'darwin' ? 4 : 2;
   const key = String(number);
   const keyCode = 48 + number;
@@ -265,6 +265,28 @@ async function dispatchShortcut(client, number) {
     windowsVirtualKeyCode: keyCode,
     nativeVirtualKeyCode: keyCode,
   });
+}
+
+/** Sends a single key event through CDP. */
+async function dispatchSingleKey(client, key) {
+  for (let evtType of ['keyUp', 'keyDown']) {
+    await client.send('Input.dispatchKeyEvent', {
+      type: evtType,
+      key,
+    });
+  }
+}
+
+/** Sends a platform-correct CommandOrControl+key event through CDP. */
+async function dispatchKeyWithModifier(client, key) {
+  for (let evtType of ['keyUp', 'keyDown']) {
+    const modifiers = process.platform === 'darwin' ? 4 : 2;
+    await client.send('Input.dispatchKeyEvent', {
+      type: evtType,
+      key,
+      modifiers,
+    });
+  }
 }
 
 /** Builds, exercises, and restarts the packaged app against one temporary profile. */
@@ -309,13 +331,46 @@ async function main() {
       'new clipboard contents should be stored newest-first',
     );
 
-    await dispatchShortcut(client, 2);
+    // Check startup search input focus
+    await waitFor(
+      async () =>
+        client.evaluate(
+          'document.getElementById("search-input") === document.activeElement',
+        ),
+      'search input should be focused on startup',
+      child,
+    );
+
+    // Unfocus search input
+    await dispatchSingleKey(client, 'Escape');
+    await waitFor(
+      async () =>
+        client.evaluate(
+          'document.getElementById("search-input") !== document.activeElement',
+        ),
+      'search input should be unfocused on Escape',
+      child,
+    );
+
+    // Select a clip with CmdOrCtrl+2
+    await dispatchNumberWithModifier(client, 2);
     await waitFor(
       async () => {
         const currentHistory = await readHistory(client);
         return currentHistory[0]?.content === firstClip ? currentHistory : null;
       },
       'numbered shortcut to select the second clip',
+      child,
+    );
+
+    // Focus search input with CmdOrCtrl+f
+    await dispatchKeyWithModifier(client, 'f');
+    await waitFor(
+      async () =>
+        client.evaluate(
+          'document.getElementById("search-input") === document.activeElement',
+        ),
+      'search input should be focused on CmdOrCtrl+f',
       child,
     );
 

@@ -24,4 +24,9 @@ describe('App', () => {
     ).toHaveTextContent('Clipboard History');
     expect(await screen.findByText('app test clip')).toBeInTheDocument();
   });
+
+  it('initially focuses on the search input', async () => {
+    render(<App />);
+    expect(await screen.findByRole('searchbox')).toHaveFocus();
+  });
 });

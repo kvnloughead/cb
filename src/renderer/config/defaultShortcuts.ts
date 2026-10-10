@@ -9,7 +9,8 @@ export type ShortcutId =
   | 'selectClip8'
   | 'selectClip9'
   | 'previousPage'
-  | 'nextPage';
+  | 'nextPage'
+  | 'focusSearch';
 export type UserSettingsShortcuts = Partial<Record<ShortcutId, string>>;
 
 export const DEFAULT_SHORTCUTS: Record<ShortcutId, string> = {
@@ -24,4 +25,5 @@ export const DEFAULT_SHORTCUTS: Record<ShortcutId, string> = {
   selectClip9: 'CommandOrControl+9',
   previousPage: 'CommandOrControl+ArrowLeft',
   nextPage: 'CommandOrControl+ArrowRight',
+  focusSearch: 'CommandOrControl+f',
 };

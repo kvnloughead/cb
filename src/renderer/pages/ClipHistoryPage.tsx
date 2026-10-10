@@ -43,7 +43,13 @@ export default function ClipHistoryPage() {
   }, []);
 
   return (
-    <ClipHistoryContext.Provider value={{ clips, filterQuery, setFilterQuery }}>
+    <ClipHistoryContext.Provider
+      value={{
+        clips,
+        filterQuery,
+        setFilterQuery,
+      }}
+    >
       <Header />
       <main className="main">
         {loadError ? (

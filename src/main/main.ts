@@ -82,7 +82,6 @@ const createWindow = async (options: { showOnReady?: boolean } = {}) => {
   }
 
   mainWindow = new BrowserWindow({
-    show: false,
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
