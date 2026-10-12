@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
+import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
 import ClipHistoryPage from '../../renderer/pages/ClipHistoryPage';
 
 const clips: Clip[] = [
@@ -17,9 +18,11 @@ let consoleError: jest.SpyInstance;
 
 function renderClipboardPage() {
   return render(
-    <ShortcutProvider>
-      <ClipHistoryPage />
-    </ShortcutProvider>,
+    <ConfigProvider>
+      <ShortcutProvider>
+        <ClipHistoryPage />
+      </ShortcutProvider>
+    </ConfigProvider>,
   );
 }
 
