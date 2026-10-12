@@ -173,7 +173,7 @@ function showWindowFromTray() {
   }
 }
 
-function initializeShortcuts() {
+function initializeGlobalShortcuts() {
   globalShortcut.register('CommandOrControl+Shift+D', async () => {
     await createWindow();
   });
@@ -228,7 +228,7 @@ app
       },
     });
 
-    initializeShortcuts();
+    initializeGlobalShortcuts();
     startAutoUpdates();
     app.on('activate', onActivate);
   })
