@@ -9,23 +9,6 @@ export default function ClipHistoryList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const containerRef = useRef<HTMLUListElement | null>(null);
-  const ESTIMATED_ITEM_HEIGHT = 31;
-
-  useLayoutEffect(() => {
-    if (!containerRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        const containerHeight = entry.contentRect.height;
-        const computedFit = Math.floor(containerHeight / ESTIMATED_ITEM_HEIGHT);
-        const safeItemsPerPage = Math.max(1, computedFit);
-        setItemsPerPage(safeItemsPerPage);
-      }
-    });
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -35,6 +18,45 @@ export default function ClipHistoryList() {
   );
   const currentItems = filteredClips.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredClips.length / itemsPerPage);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const measureItemsPerPage = () => {
+      const rows = Array.from(container.children).filter(
+        (child): child is HTMLLIElement => child instanceof HTMLLIElement,
+      );
+      const firstRow = rows[0];
+      if (!firstRow) return;
+
+      const firstRowRect = firstRow.getBoundingClientRect();
+      const secondRow = rows[1];
+      const rowGap = Number.parseFloat(getComputedStyle(container).rowGap) || 0;
+      const rowPitch = secondRow
+        ? secondRow.getBoundingClientRect().top - firstRowRect.top
+        : firstRowRect.height + rowGap;
+
+      if (rowPitch <= 0) return;
+
+      const availableHeight = container.clientHeight;
+      const fittingItems =
+        Math.floor((availableHeight - firstRowRect.height) / rowPitch) + 1;
+      setItemsPerPage(Math.max(1, fittingItems));
+    };
+
+    const observer = new ResizeObserver(() => {
+      measureItemsPerPage();
+    });
+
+    observer.observe(container);
+    Array.from(container.children)
+      .filter((child): child is HTMLLIElement => child instanceof HTMLLIElement)
+      .slice(0, 2)
+      .forEach((row) => observer.observe(row));
+
+    return () => observer.disconnect();
+  }, [currentItems.length]);
 
   const isMac = window.electron.platform === 'darwin';
 
