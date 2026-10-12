@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useLayoutEffect, useRef } from 'react';
 import ClipHistoryContext from '../../contexts/ClipHistoryContext';
 import useShortcut from '../../hooks/useShortcut';
 import Pagination from '../Pagination/Pagination';
@@ -7,7 +7,25 @@ import './ClipHistoryList.css';
 export default function ClipHistoryList() {
   const { clips, filterQuery } = useContext(ClipHistoryContext);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const containerRef = useRef<HTMLUListElement | null>(null);
+  const ESTIMATED_ITEM_HEIGHT = 31;
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const containerHeight = entry.contentRect.height;
+        const computedFit = Math.floor(containerHeight / ESTIMATED_ITEM_HEIGHT);
+        const safeItemsPerPage = Math.max(1, computedFit);
+        setItemsPerPage(safeItemsPerPage);
+      }
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -46,7 +64,7 @@ export default function ClipHistoryList() {
   });
 
   return (
-    <ul className="clip-history-list">
+    <ul className="clip-history-list" ref={containerRef}>
       {currentItems.map((clip, i) => (
         <li key={clip.id}>
           <p className="truncate-line text">{clip.content}</p>

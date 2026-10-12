@@ -10,36 +10,59 @@ type PaginationProps = {
 
 /**
  * A reusable presentation component for handling client or server-side pagination.
- *
- * @component
- * @example
- * const [page, setPage] = useState(1);
- * return (
- *   <Pagination
- *     totalItems={100}
- *     itemsPerPage={10}
- *     currentPage={page}
- *     onPageChange={setPage}
- *   />
- * )
- *
- * @param {Object} props - Component properties.
- * @param {number} props.totalItems - The total number of records across all pages.
- * @param {number} props.itemsPerPage - The number of rows/items rendered per individual page.
- * @param {number} props.currentPage - The currently active index page (starts at 1).
- * @param {function(number): void} props.onPageChange - Callback triggered when a new page number or navigation arrow is clicked. Receives the targeted page number as an argument.
- * @returns {React.ReactElement|null} The rendered pagination navigation bar, or null if total pages <= 1.
  */
 const Pagination = ({
   totalItems,
+  // expectedHeight,
   itemsPerPage,
   currentPage,
   onPageChange,
 }: PaginationProps) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   if (totalPages <= 1) return null;
+
+  // Helper logic to compute which page numbers/ellipses to display
+  const getPageRange = (): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages + 2) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+    pages.push(1);
+
+    if (startPage > 2) {
+      pages.push('ellipsis-left');
+    } else if (startPage === 2) {
+      pages.push(2);
+    }
+
+    for (
+      let i = Math.max(3, startPage);
+      i <= Math.min(totalPages - 2, endPage);
+      i++
+    ) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages - 1) {
+      if (endPage === totalPages - 2) {
+        pages.push(totalPages - 1);
+      } else {
+        pages.push('ellipsis-right');
+      }
+    }
+
+    pages.push(totalPages);
+    return pages;
+  };
+
+  const visiblePages = getPageRange();
 
   return (
     <nav className="pagination">
@@ -54,18 +77,32 @@ const Pagination = ({
       </button>
 
       <ul className="page-number-btns">
-        {pageNumbers.map((page) => (
-          <li key={page}>
-            <button
-              type="button"
-              aria-label={`Go to page ${page}`}
-              onClick={() => onPageChange(page)}
-              className={`page-number-btn ${currentPage === page ? 'active' : ''}`}
-            >
-              {page}
-            </button>
-          </li>
-        ))}
+        {visiblePages.map((page, index) => {
+          if (typeof page === 'string') {
+            return (
+              <li
+                key={`${page}-${index}`}
+                className="pagination-ellipsis"
+                aria-hidden="true"
+              >
+                &hellip;
+              </li>
+            );
+          }
+
+          return (
+            <li key={page}>
+              <button
+                type="button"
+                aria-label={`Go to page ${page}`}
+                onClick={() => onPageChange(page)}
+                className={`page-number-btn ${currentPage === page ? 'active' : ''}`}
+              >
+                {page}
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
       <button
