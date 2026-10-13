@@ -27,3 +27,14 @@ if (!global.TextDecoder) {
   // @ts-ignore
   global.TextDecoder = TextDecoder;
 }
+
+// Mock ResizeObserver (used in Pagination)
+if (!global.ResizeObserver) {
+  global.ResizeObserver = class implements ResizeObserver {
+    constructor() {}
+
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}

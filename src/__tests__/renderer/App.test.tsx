@@ -2,21 +2,29 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import App from '../../renderer/App';
 
+const invoke = jest.fn();
+
 describe('App', () => {
-  it('renders the app and its main heading', async () => {
+  beforeEach(() => {
+    invoke.mockResolvedValue([]);
     Object.defineProperty(window, 'electron', {
       configurable: true,
       value: {
+        configStore: {
+          getAll: jest.fn().mockResolvedValue(undefined),
+          set: jest.fn(),
+        },
         ipcRenderer: {
-          invoke: jest
-            .fn()
-            .mockResolvedValue([{ id: 1, content: 'app test clip' }]),
+          invoke,
           sendMessage: jest.fn(),
           on: jest.fn(),
         },
       },
     });
+  });
 
+  it('renders the app and its main heading', async () => {
+    invoke.mockResolvedValue([{ id: 1, content: 'app test clip' }]);
     render(<App />);
 
     expect(
