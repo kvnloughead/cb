@@ -2,7 +2,7 @@ import type { Schema } from 'electron-store';
 
 export interface ConfigOptions {
   maxHistory: number;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   windowSize: {
     width: number;
     height: number;
@@ -11,7 +11,7 @@ export interface ConfigOptions {
 
 export const configDefaults: ConfigOptions = {
   maxHistory: 10_000,
-  theme: 'light',
+  theme: 'system',
   windowSize: {
     width: 600,
     height: 800,
@@ -25,7 +25,7 @@ export const ConfigOptionsSchema: Schema<ConfigOptions> = {
   },
   theme: {
     type: 'string',
-    enum: ['light', 'dark'],
+    enum: ['light', 'dark', 'system'],
     default: configDefaults.theme,
   },
   windowSize: {

@@ -7,8 +7,8 @@
 
 .search-container::before {
   content: '';
-  background-image: url(../../assets/images/search-icon.webp);
-  background-size: cover;
+  background-image: url(../../assets/images/search-icon.svg);
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   width: 16px;
@@ -32,10 +32,11 @@
 
 .search-container input {
   width: 100%;
-  padding: 10px 20px 10px 30px;
+  padding: 10px 20px 10px 35px;
   font-size: 16px;
   font-weight: 400;
-  border: 1px solid #ccc;
+  border: var(--solid-border-gray);
   border-radius: 4px;
   box-sizing: border-box;
+  background-color: var(--color-white);
 }
