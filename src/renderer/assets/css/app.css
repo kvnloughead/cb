@@ -1,7 +1,26 @@
+:root {
+  --main-bg-color: #efefef;
+  --main-box-shadow: #efefef80;
+  --solid-border: 1px solid #ccc;
+  --main-text-color: #1a1a1a;
+  --main-text-color-invariant: #1a1a1a;
+  --color-white: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .app {
+    --main-bg-color: #696969;
+    --main-box-shadow: #69696980;
+    --main-text-color: #f4f4f4;
+    --solid-border: 1px solid #525252;
+    --color-white: #f4f4f4;
+  }
+}
+
 .app {
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
   position: relative;
-  background-color: #efefef;
-  color: #1a1a1a;
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
