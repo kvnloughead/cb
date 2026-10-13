@@ -35,6 +35,11 @@
 .app main {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+.app .footer {
+  margin-top: auto;
 }
 
 .app .error-msg {

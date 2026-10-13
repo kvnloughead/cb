@@ -3,6 +3,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
 import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
 import ClipHistoryPage from '../../renderer/pages/ClipHistoryPage';
+import MainLayout from '../../renderer/components/MainLayout/MainLayout';
+import Header from '../../renderer/components/Header/Header';
 
 const clips: Clip[] = [
   { id: 1, content: 'first test clip' },
@@ -20,7 +22,7 @@ function renderClipboardPage() {
   return render(
     <ConfigProvider>
       <ShortcutProvider>
-        <ClipHistoryPage />
+        <MainLayout header={<Header />} main={<ClipHistoryPage />} />
       </ShortcutProvider>
     </ConfigProvider>,
   );
@@ -36,6 +38,10 @@ describe('ClipHistoryPage', () => {
       configurable: true,
       value: {
         platform: 'darwin',
+        configStore: {
+          getAll: jest.fn().mockResolvedValue(undefined),
+          set: jest.fn(),
+        },
         ipcRenderer: {
           invoke,
           sendMessage: jest.fn(),

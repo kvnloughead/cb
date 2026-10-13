@@ -5,7 +5,8 @@
   gap: 12px;
 
   /* Subtract height of header and pagination controls */
-  height: calc(100dvh - 158px);
+  height: calc(100dvh - 200px);
+  position: relative;
 }
 
 .clip-history-list li {
