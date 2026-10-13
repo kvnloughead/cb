@@ -18,6 +18,7 @@ import {
   Menu,
   clipboard,
   globalShortcut,
+  nativeTheme,
 } from 'electron';
 import log from 'electron-log';
 import Store from 'electron-store';
@@ -210,6 +211,7 @@ app
     });
 
     await createWindow();
+    nativeTheme.themeSource = configStore.get('theme');
 
     tray = createTray({
       Tray,
