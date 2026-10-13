@@ -20,6 +20,7 @@ import {
   globalShortcut,
 } from 'electron';
 import log from 'electron-log';
+import Store from 'electron-store';
 
 import MenuBuilder from './menu';
 import { resolveHtmlPath, getAssetPath } from './path';
@@ -29,13 +30,13 @@ import {
   CI,
   DEBUG_PROD,
   HIDE_WINDOW,
-  MAX_CLIP_HISTORY,
   NODE_ENV,
   START_MINIMIZED,
   UPGRADE_EXTENSIONS,
 } from './constants';
 import { startClipboardTracker } from './clipboard';
 import ClipHistoryDB from './database/clip-history';
+import { ConfigOptionsSchema } from '../shared/config';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -76,6 +77,20 @@ const installExtensions = async () => {
   }).catch(console.log);
 };
 
+/* --------------------------- Configuration Store -------------------------- */
+const configStore = new Store({ name: 'config', schema: ConfigOptionsSchema });
+
+ipcMain.handle('config-store-get', (_, key) => {
+  return configStore.get(key);
+});
+
+ipcMain.handle('config-store-set', (_, key, val) => {
+  configStore.set(key, val);
+});
+
+ipcMain.handle('config-store-get-all', () => configStore.store);
+/* -------------------------------------------------------------------------- */
+
 const createWindow = async (options: { showOnReady?: boolean } = {}) => {
   if (isDebug) {
     await installExtensions();
@@ -87,6 +102,8 @@ const createWindow = async (options: { showOnReady?: boolean } = {}) => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
+      contextIsolation: true,
+      sandbox: true,
     },
   });
 
@@ -156,7 +173,7 @@ function showWindowFromTray() {
   }
 }
 
-function initializeShortcuts() {
+function initializeGlobalShortcuts() {
   globalShortcut.register('CommandOrControl+Shift+D', async () => {
     await createWindow();
   });
@@ -169,9 +186,10 @@ app
       app.getPath('userData'),
       'clip-history.db',
     );
+
     const clipHistoryDB = new ClipHistoryDB(
       clipboardHistoryDbPath,
-      Number(MAX_CLIP_HISTORY),
+      configStore.get('maxHistory'),
     );
 
     ipcMain.handle('load-clip-history', async () => {
@@ -210,7 +228,7 @@ app
       },
     });
 
-    initializeShortcuts();
+    initializeGlobalShortcuts();
     startAutoUpdates();
     app.on('activate', onActivate);
   })

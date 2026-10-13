@@ -4,6 +4,13 @@
   align-items: center;
   gap: 30px;
   width: 100%;
+  z-index: 2;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 20px 0 30px;
+  background-color: #efefef;
+  box-shadow: 0 -15px 15px #efefef80;
 
   .page-number-btns {
     list-style-type: none;
