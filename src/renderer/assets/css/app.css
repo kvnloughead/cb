@@ -1,7 +1,12 @@
 :root {
   --main-bg-color: #efefef;
   --main-box-shadow: #efefef80;
-  --solid-border: 1px solid #ccc;
+
+  --placeholder-text-color: #1a1a1ab3;
+  --search-input-bg-color: #fff;
+  --solid-border-gray: 1px solid #ccc;
+  --focus-color: #5eabed;
+
   --main-text-color: #1a1a1a;
   --main-text-color-invariant: #1a1a1a;
   --color-white: #fff;
@@ -9,10 +14,14 @@
 
 @media (prefers-color-scheme: dark) {
   .app {
-    --main-bg-color: #696969;
-    --main-box-shadow: #69696980;
+    --main-bg-color: #222222;
+    --main-box-shadow: #22222280;
+
+    --search-input-bg-color: #696969;
+    --placeholder-text-color: #e1e1e1;
+    --solid-border-gray: 1px solid #525252;
+
     --main-text-color: #f4f4f4;
-    --solid-border: 1px solid #525252;
     --color-white: #f4f4f4;
   }
 }
@@ -29,7 +38,7 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 20px;
+  padding: 8px 20px 20px;
 }
 
 .app main {
@@ -44,4 +53,9 @@
 
 .app .error-msg {
   text-align: center;
+}
+
+.app button:focus,
+.app input:focus {
+  outline: 2px solid var(--focus-color);
 }

@@ -38,5 +38,9 @@
   border: var(--solid-border-gray);
   border-radius: 4px;
   box-sizing: border-box;
-  background-color: var(--color-white);
+  background-color: var(--search-input-bg-color);
+}
+
+.search-container input::placeholder {
+  color: var(--placeholder-text-color);
 }
