@@ -105,9 +105,9 @@ const CommandPalette = () => {
                     </>
                     <Command.Item
                       className="item"
-                      // onSelect={() => setPages([...pages, 'theme'])}
+                      onSelect={window.electron.openConfigFile}
                     >
-                      Foobar
+                      Open Configuration File
                     </Command.Item>
                   </Command.Group>
                 )}

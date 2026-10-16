@@ -10,10 +10,12 @@ export type Channels =
   | 'update-clip-history'
   | 'config-store-get'
   | 'config-store-set'
-  | 'change-theme';
+  | 'change-theme'
+  | 'open-config-file';
 
 const electronHandler = {
   platform: process.platform,
+  openConfigFile: () => ipcRenderer.invoke('open-config-file'),
   configStore: {
     get(key: string) {
       return ipcRenderer.invoke('config-store-get', key);

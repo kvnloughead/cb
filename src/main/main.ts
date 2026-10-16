@@ -90,6 +90,10 @@ ipcMain.handle('config-store-set', (_, key, val) => {
 });
 
 ipcMain.handle('config-store-get-all', () => configStore.store);
+
+ipcMain.handle('open-config-file', () => {
+  return shell.openPath(path.join(app.getPath('userData'), 'config.json'));
+});
 /* -------------------------------------------------------------------------- */
 
 const createWindow = async (options: { showOnReady?: boolean } = {}) => {
