@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import type { ComponentProps } from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { Command, useCommandState } from 'cmdk';
+import { Command } from 'cmdk';
 import { useConfig } from '../../contexts/ConfigContext';
 import './CommandPalette.css';
 
-const SubItem = (props: ComponentProps<typeof Command.Item>) => {
-  const search = useCommandState((state) => state.search);
+type SubItemProps = ComponentProps<typeof Command.Item> & { search: string };
+
+const SubItem = ({ search, ...props }: SubItemProps) => {
   if (!search) return null;
   return <Command.Item {...props} />;
 };
@@ -81,7 +82,10 @@ const CommandPalette = () => {
                     <>
                       <Command.Item
                         className="item"
-                        onSelect={() => setPages([...pages, 'theme'])}
+                        onSelect={() => {
+                          setSearch('');
+                          setPages([...pages, 'theme']);
+                        }}
                       >
                         Change theme
                       </Command.Item>
@@ -89,7 +93,11 @@ const CommandPalette = () => {
                         <SubItem
                           key={theme}
                           className="item"
-                          onSelect={() => updateConfig('theme', theme)}
+                          search={search}
+                          onSelect={() => {
+                            setSearch('');
+                            updateConfig('theme', theme);
+                          }}
                         >
                           Change theme to {theme}
                         </SubItem>
@@ -111,6 +119,7 @@ const CommandPalette = () => {
                         key={theme}
                         className="item"
                         onSelect={() => {
+                          setSearch('');
                           updateConfig('theme', theme);
                         }}
                       >
