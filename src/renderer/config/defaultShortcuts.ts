@@ -10,7 +10,8 @@ export type ShortcutId =
   | 'selectClip9'
   | 'previousPage'
   | 'nextPage'
-  | 'focusSearch';
+  | 'focusSearch'
+  | 'updateTheme';
 export type UserSettingsShortcuts = Partial<Record<ShortcutId, string>>;
 
 export const DEFAULT_SHORTCUTS: Record<ShortcutId, string> = {

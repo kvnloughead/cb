@@ -212,6 +212,13 @@ app
 
     await createWindow();
     nativeTheme.themeSource = configStore.get('theme');
+    ipcMain.on('change-theme', async (_, theme) => {
+      try {
+        configStore.set('theme', theme);
+      } catch (e) {
+        console.error('Failed to change theme', e);
+      }
+    });
 
     tray = createTray({
       Tray,

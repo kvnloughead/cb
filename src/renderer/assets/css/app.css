@@ -16,19 +16,17 @@
   --color-white: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --main-bg-color: #222222;
-    --main-box-shadow: #22222280;
-    --secondary-bg-color: #383838;
+:root[data-theme='dark'] {
+  --main-bg-color: #222222;
+  --main-box-shadow: #22222280;
+  --secondary-bg-color: #383838;
 
-    --search-input-bg-color: #696969;
-    --placeholder-text-color: #e1e1e1;
-    --solid-border-gray: 1px solid #525252;
+  --search-input-bg-color: #696969;
+  --placeholder-text-color: #e1e1e1;
+  --solid-border-gray: 1px solid #525252;
 
-    --main-text-color: #f4f4f4;
-    --color-white: #f4f4f4;
-  }
+  --main-text-color: #f4f4f4;
+  --color-white: #f4f4f4;
 }
 
 .app {

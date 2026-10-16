@@ -9,7 +9,8 @@ export type Channels =
   | 'add-to-clipboard'
   | 'update-clip-history'
   | 'config-store-get'
-  | 'config-store-set';
+  | 'config-store-set'
+  | 'change-theme';
 
 const electronHandler = {
   platform: process.platform,
