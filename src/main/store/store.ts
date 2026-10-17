@@ -1,11 +1,17 @@
 import Store from 'electron-store';
 import type { Schema } from 'electron-store';
 
-export function initStore<T extends Record<string, any>>(
-  mainProcess: Electron.IpcMain,
-  storeName: string,
-  schema: Schema<T>,
-): Store<T> {
+interface InitStoreParams<T> {
+  storeName: string;
+  mainProcess: Electron.IpcMain;
+  schema: Schema<T>;
+}
+
+export function initStore<T extends Record<string, any>>({
+  storeName,
+  mainProcess,
+  schema,
+}: InitStoreParams<T>): Store<T> {
   const store = new Store<T>({
     name: storeName,
     schema,

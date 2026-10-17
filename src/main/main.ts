@@ -80,7 +80,11 @@ const installExtensions = async () => {
 };
 
 /* --------------------------- Configuration Store -------------------------- */
-const configStore = initStore(ipcMain, 'config', ConfigOptionsSchema);
+const configStore = initStore({
+  mainProcess: ipcMain,
+  storeName: 'config',
+  schema: ConfigOptionsSchema,
+});
 
 ipcMain.handle('open-config-file', () => {
   return shell.openPath(path.join(app.getPath('userData'), 'config.json'));
