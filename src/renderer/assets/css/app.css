@@ -1,42 +1,64 @@
 :root {
   --main-bg-color: #efefef;
   --main-box-shadow: #efefef80;
-  --solid-border: 1px solid #ccc;
+  --secondary-bg-color: #c1c1c1;
+
+  --placeholder-text-color: #1a1a1ab3;
+  --search-input-bg-color: #fff;
+  --solid-border-gray: 1px solid #ccc;
+  --focus-color: #5eabed;
+
   --main-text-color: #1a1a1a;
   --main-text-color-invariant: #1a1a1a;
+  --primary-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
   --color-white: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
-  .app {
-    --main-bg-color: #696969;
-    --main-box-shadow: #69696980;
-    --main-text-color: #f4f4f4;
-    --solid-border: 1px solid #525252;
-    --color-white: #f4f4f4;
-  }
+:root[data-theme='dark'] {
+  --main-bg-color: #222222;
+  --main-box-shadow: #22222280;
+  --secondary-bg-color: #383838;
+
+  --search-input-bg-color: #696969;
+  --placeholder-text-color: #e1e1e1;
+  --solid-border-gray: 1px solid #525252;
+
+  --main-text-color: #f4f4f4;
+  --color-white: #f4f4f4;
 }
 
 .app {
   background-color: var(--main-bg-color);
   color: var(--main-text-color);
   position: relative;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: var(--primary-font-family);
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 20px;
+  padding: 8px 20px 20px;
 }
 
 .app main {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+.app .footer {
+  margin-top: auto;
 }
 
 .app .error-msg {
   text-align: center;
+}
+
+.app button:focus,
+.app input:focus,
+.app button:focus-visible,
+.app input:focus-visible {
+  outline: 2px solid var(--focus-color);
 }

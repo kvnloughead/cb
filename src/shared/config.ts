@@ -1,8 +1,10 @@
 import type { Schema } from 'electron-store';
 
+export type Theme = 'light' | 'dark' | 'system';
+
 export interface ConfigOptions {
   maxHistory: number;
-  theme: 'light' | 'dark' | 'system';
+  theme: Theme;
   windowSize: {
     width: number;
     height: number;

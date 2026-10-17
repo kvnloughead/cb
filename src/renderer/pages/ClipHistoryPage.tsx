@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import Header from '../components/Header/Header';
+import { useEffect, useState, useContext } from 'react';
 import ClipHistoryList from '../components/ClipHistoryList/ClipHistoryList';
 import ClipHistoryContext from '../contexts/ClipHistoryContext';
 
@@ -10,9 +9,8 @@ function isValidClip(clip: unknown): clip is Clip {
 }
 
 export default function ClipHistoryPage() {
-  const [clips, setClips] = useState<Clip[]>([]);
-  const [filterQuery, setFilterQuery] = useState<string>('');
   const [loadError, setLoadError] = useState<string>('');
+  const { setClips } = useContext(ClipHistoryContext);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -43,23 +41,14 @@ export default function ClipHistoryPage() {
   }, []);
 
   return (
-    <ClipHistoryContext.Provider
-      value={{
-        clips,
-        filterQuery,
-        setFilterQuery,
-      }}
-    >
-      <Header />
-      <main className="main">
-        {loadError ? (
-          <p role="alert" className="error-msg">
-            {loadError}
-          </p>
-        ) : (
-          <ClipHistoryList />
-        )}
-      </main>
-    </ClipHistoryContext.Provider>
+    <>
+      {loadError ? (
+        <p role="alert" className="error-msg">
+          {loadError}
+        </p>
+      ) : (
+        <ClipHistoryList />
+      )}
+    </>
   );
 }

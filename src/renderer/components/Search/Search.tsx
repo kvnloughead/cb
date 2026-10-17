@@ -37,7 +37,6 @@ export default function Search({ placeholder, onChange }: SearchPropTypes) {
         Type to search
       </label>
       <input
-        role="searchbox"
         id="search-input"
         type="search"
         value={value}

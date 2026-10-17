@@ -1,8 +1,20 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import App from '../../renderer/App';
+import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
+import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
 
 const invoke = jest.fn();
+
+function renderApp() {
+  render(
+    <ShortcutProvider>
+      <ConfigProvider>
+        <App />
+      </ConfigProvider>
+    </ShortcutProvider>,
+  );
+}
 
 describe('App', () => {
   beforeEach(() => {
@@ -21,11 +33,23 @@ describe('App', () => {
         },
       },
     });
+
+    const mockMatchMedia = jest.fn().mockReturnValue({
+      matches: [],
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    });
+
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: mockMatchMedia,
+    });
   });
 
   it('renders the app and its main heading', async () => {
     invoke.mockResolvedValue([{ id: 1, content: 'app test clip' }]);
-    render(<App />);
+    renderApp();
 
     expect(
       await screen.findByRole('heading', { name: 'cb' }),
@@ -34,7 +58,7 @@ describe('App', () => {
   });
 
   it('initially focuses on the search input', async () => {
-    render(<App />);
+    renderApp();
     expect(await screen.findByRole('searchbox')).toHaveFocus();
   });
 });

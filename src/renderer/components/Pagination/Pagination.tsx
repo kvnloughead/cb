@@ -210,7 +210,7 @@ const Pagination = <T,>({
             aria-label="Previous page"
             onClick={() => onPageChange(effectivePage - 1)}
             disabled={effectivePage === 1}
-            className="next-or-previous-btn current-page"
+            className={`next-or-previous-btn ${currentPage === 1 ? 'disabled' : ''}`}
           >
             Previous
           </button>
@@ -249,7 +249,7 @@ const Pagination = <T,>({
             aria-label="Next page"
             onClick={() => onPageChange(effectivePage + 1)}
             disabled={effectivePage === totalPages}
-            className="next-or-previous-btn"
+            className={`next-or-previous-btn ${currentPage === totalPages ? 'disabled' : ''}`}
           >
             Next
           </button>
