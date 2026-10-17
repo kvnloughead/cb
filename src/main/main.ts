@@ -37,7 +37,7 @@ import {
 } from './constants';
 import { startClipboardTracker } from './clipboard';
 import ClipHistoryDB from './database/clip-history';
-import { ConfigOptionsSchema } from '../shared/config';
+import { ConfigOptions, ConfigOptionsSchema } from '../shared/config';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -96,14 +96,20 @@ ipcMain.handle('open-config-file', () => {
 });
 /* -------------------------------------------------------------------------- */
 
-const createWindow = async (options: { showOnReady?: boolean } = {}) => {
+const createWindow = async (
+  config: Store<ConfigOptions>,
+  options: { showOnReady?: boolean } = {},
+) => {
   if (isDebug) {
     await installExtensions();
   }
 
+  const width = config.get('windowSize.width');
+  const height = config.get('windowSize.height');
+
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 728,
+    width: isDebug ? 1024 : width,
+    height: height,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
@@ -152,7 +158,7 @@ function reportWindowError(error: unknown) {
 
 function onActivate() {
   // Reopening a macOS window must not initialize another updater.
-  showWindowFromTray();
+  showWindowFromTray(configStore);
 }
 
 let tray: Tray | null = null;
@@ -168,9 +174,9 @@ app.on('window-all-closed', () => {
   // The user must choose Quit from the tray or menu to fully exit.
 });
 
-function showWindowFromTray() {
+function showWindowFromTray(config: Store<ConfigOptions>) {
   if (mainWindow === null) {
-    void createWindow({ showOnReady: true }).catch(reportWindowError);
+    void createWindow(config, { showOnReady: true }).catch(reportWindowError);
   } else {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
@@ -178,9 +184,9 @@ function showWindowFromTray() {
   }
 }
 
-function initializeGlobalShortcuts() {
+function initializeGlobalShortcuts(config: Store<ConfigOptions>) {
   globalShortcut.register('CommandOrControl+Shift+D', async () => {
-    await createWindow();
+    await createWindow(config);
   });
 }
 
@@ -214,7 +220,7 @@ app
       }
     });
 
-    await createWindow();
+    await createWindow(configStore);
     nativeTheme.themeSource = configStore.get('theme');
     ipcMain.on('change-theme', async (_, theme) => {
       try {
@@ -229,7 +235,7 @@ app
       Menu,
       getAssetPath,
       platform: process.platform,
-      onShow: showWindowFromTray,
+      onShow: () => showWindowFromTray(configStore),
       onQuit: () => app.quit(),
     });
 
@@ -241,7 +247,7 @@ app
       },
     });
 
-    initializeGlobalShortcuts();
+    initializeGlobalShortcuts(configStore);
     startAutoUpdates();
     app.on('activate', onActivate);
   })
