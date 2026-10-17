@@ -1,16 +1,10 @@
 import Store from 'electron-store';
-import type { Schema } from 'electron-store';
 
-export function initStore<T extends Record<string, any>>(
+export function setStoreHandlers<T extends Record<string, any>>(
   mainProcess: Electron.IpcMain,
   storeName: string,
-  schema: Schema<T>,
-): Store<T> {
-  const store = new Store<T>({
-    name: storeName,
-    schema,
-  });
-
+  store: Store<T>,
+) {
   mainProcess.handle(`${storeName}-store-get`, (_, key) => {
     return store.get(key);
   });
@@ -19,7 +13,13 @@ export function initStore<T extends Record<string, any>>(
     store.set(key, val);
   });
 
-  mainProcess.handle(`${storeName}-store-get-all`, () => store.store);
+  mainProcess.handle(`${storeName}-store-update`, (_, key, val) => {
+    store.set(key, val);
+  });
 
-  return store;
+  mainProcess.handle(`${storeName}-store-delete`, (_, key) => {
+    store.delete(key);
+  });
+
+  mainProcess.handle(`${storeName}-store-get-all`, () => store.store);
 }
