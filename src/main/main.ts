@@ -38,6 +38,7 @@ import {
 import { startClipboardTracker } from './clipboard';
 import ClipHistoryDB from './database/clip-history';
 import { ConfigOptions, ConfigOptionsSchema } from '../shared/config';
+import { initStore } from './store/store';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -79,17 +80,7 @@ const installExtensions = async () => {
 };
 
 /* --------------------------- Configuration Store -------------------------- */
-const configStore = new Store({ name: 'config', schema: ConfigOptionsSchema });
-
-ipcMain.handle('config-store-get', (_, key) => {
-  return configStore.get(key);
-});
-
-ipcMain.handle('config-store-set', (_, key, val) => {
-  configStore.set(key, val);
-});
-
-ipcMain.handle('config-store-get-all', () => configStore.store);
+const configStore = initStore(ipcMain, 'config', ConfigOptionsSchema);
 
 ipcMain.handle('open-config-file', () => {
   return shell.openPath(path.join(app.getPath('userData'), 'config.json'));
