@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import App from '../../renderer/App';
-import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
+import { ConfigProvider } from '../../renderer/contexts/StoreContext';
 import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
 
 const invoke = jest.fn();
@@ -22,7 +22,7 @@ describe('App', () => {
     Object.defineProperty(window, 'electron', {
       configurable: true,
       value: {
-        configStore: {
+        configStoreClient: {
           getAll: jest.fn().mockResolvedValue(undefined),
           set: jest.fn(),
         },

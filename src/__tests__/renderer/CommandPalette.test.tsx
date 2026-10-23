@@ -1,9 +1,12 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import CommandPalette from '../../renderer/components/CommandPalette/CommandPalette';
-import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
+import { ConfigProvider } from '../../renderer/contexts/StoreContext';
 
-const configStoreSet = jest.fn();
+const configStoreClient = {
+  getAll: jest.fn(),
+  set: jest.fn(),
+};
 
 function renderCommandPalette() {
   render(
@@ -19,15 +22,13 @@ afterEach(() => {
 
 beforeEach(() => {
   Element.prototype.scrollIntoView = jest.fn();
-  configStoreSet.mockReset().mockResolvedValue(undefined);
+  configStoreClient.getAll.mockReset().mockResolvedValue({});
+  configStoreClient.set.mockReset().mockResolvedValue(undefined);
   Object.defineProperty(window, 'electron', {
     configurable: true,
     value: {
       platform: 'darwin',
-      configStore: {
-        getAll: jest.fn().mockResolvedValue({}),
-        set: configStoreSet,
-      },
+      configStoreClient,
     },
   });
 });
@@ -130,7 +131,7 @@ describe('CommandPalette', () => {
     );
 
     await waitFor(() => {
-      expect(configStoreSet).toHaveBeenCalledWith('theme', 'dark');
+      expect(configStoreClient.set).toHaveBeenCalledWith('theme', 'dark');
     });
     expect(input).toHaveValue('');
     expect(screen.queryByText('No results found.')).not.toBeInTheDocument();

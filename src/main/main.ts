@@ -38,6 +38,7 @@ import {
 import { startClipboardTracker } from './clipboard';
 import ClipHistoryDB from './database/clip-history';
 import { ConfigOptions, ConfigOptionsSchema } from '../shared/config';
+import { setStoreHandlers } from './store/store';
 
 // Disable hardware acceleration on Linux CI runs
 // Analogous to the --disable-gpu flag
@@ -79,17 +80,12 @@ const installExtensions = async () => {
 };
 
 /* --------------------------- Configuration Store -------------------------- */
-const configStore = new Store({ name: 'config', schema: ConfigOptionsSchema });
-
-ipcMain.handle('config-store-get', (_, key) => {
-  return configStore.get(key);
+const configStore = new Store({
+  name: 'config',
+  schema: ConfigOptionsSchema,
+  rootSchema: { additionalProperties: false },
 });
-
-ipcMain.handle('config-store-set', (_, key, val) => {
-  configStore.set(key, val);
-});
-
-ipcMain.handle('config-store-get-all', () => configStore.store);
+setStoreHandlers(ipcMain, 'config', configStore);
 
 ipcMain.handle('open-config-file', () => {
   return shell.openPath(path.join(app.getPath('userData'), 'config.json'));
@@ -193,6 +189,11 @@ function initializeGlobalShortcuts(config: Store<ConfigOptions>) {
 app
   .whenReady()
   .then(async () => {
+    nativeTheme.themeSource = configStore.get('theme') ?? 'system';
+    configStore.onDidChange('theme', (theme) => {
+      nativeTheme.themeSource = theme ?? 'system';
+    });
+
     const clipboardHistoryDbPath = path.join(
       app.getPath('userData'),
       'clip-history.db',
@@ -221,7 +222,6 @@ app
     });
 
     await createWindow(configStore);
-    nativeTheme.themeSource = configStore.get('theme');
     ipcMain.on('change-theme', async (_, theme) => {
       try {
         configStore.set('theme', theme);
