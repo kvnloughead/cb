@@ -189,6 +189,11 @@ function initializeGlobalShortcuts(config: Store<ConfigOptions>) {
 app
   .whenReady()
   .then(async () => {
+    nativeTheme.themeSource = configStore.get('theme') ?? 'system';
+    configStore.onDidChange('theme', (theme) => {
+      nativeTheme.themeSource = theme ?? 'system';
+    });
+
     const clipboardHistoryDbPath = path.join(
       app.getPath('userData'),
       'clip-history.db',
@@ -217,7 +222,6 @@ app
     });
 
     await createWindow(configStore);
-    nativeTheme.themeSource = configStore.get('theme');
     ipcMain.on('change-theme', async (_, theme) => {
       try {
         configStore.set('theme', theme);
