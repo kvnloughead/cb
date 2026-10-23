@@ -2,15 +2,15 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import './assets/css/index.css';
-import { useConfig } from './contexts/ConfigContext';
+import { useConfig } from './contexts/StoreContext';
 import ClipHistoryPage from './pages/ClipHistoryPage';
 import MainLayout from './components/MainLayout/MainLayout';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 
 export default function App() {
-  const { config } = useConfig();
-  const { theme } = config;
+  const configStore = useConfig();
+  const theme = configStore.data['theme'];
 
   useEffect(() => {
     const root = document.documentElement;

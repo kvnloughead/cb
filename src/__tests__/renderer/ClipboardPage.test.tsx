@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ShortcutProvider } from '../../renderer/contexts/ShortcutContext';
-import { ConfigProvider } from '../../renderer/contexts/ConfigContext';
+import { ConfigProvider } from '../../renderer/contexts/StoreContext';
 import ClipHistoryPage from '../../renderer/pages/ClipHistoryPage';
 import MainLayout from '../../renderer/components/MainLayout/MainLayout';
 import Header from '../../renderer/components/Header/Header';
@@ -38,7 +38,7 @@ describe('ClipHistoryPage', () => {
       configurable: true,
       value: {
         platform: 'darwin',
-        configStore: {
+        configStoreClient: {
           getAll: jest.fn().mockResolvedValue(undefined),
           set: jest.fn(),
         },

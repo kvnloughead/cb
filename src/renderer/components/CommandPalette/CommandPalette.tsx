@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { ComponentProps } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { Command } from 'cmdk';
-import { useConfig } from '../../contexts/ConfigContext';
+import { useConfig } from '../../contexts/StoreContext';
 import './CommandPalette.css';
 
 type SubItemProps = ComponentProps<typeof Command.Item> & { search: string };
@@ -22,7 +22,7 @@ const CommandPalette = () => {
   const [pages, setPages] = useState<Pages[]>([]);
   const page = pages[pages.length - 1];
 
-  const { updateConfig } = useConfig();
+  const configStore = useConfig();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -89,14 +89,14 @@ const CommandPalette = () => {
                       >
                         Change theme
                       </Command.Item>
-                      {['light', 'dark', 'system'].map((theme) => (
+                      {(['light', 'dark', 'system'] as const).map((theme) => (
                         <SubItem
                           key={theme}
                           className="item"
                           search={search}
                           onSelect={() => {
                             setSearch('');
-                            updateConfig('theme', theme);
+                            configStore.update('theme', theme);
                           }}
                         >
                           Change theme to {theme}
@@ -114,13 +114,13 @@ const CommandPalette = () => {
 
                 {page === 'theme' && (
                   <>
-                    {['light', 'dark', 'system'].map((theme) => (
+                    {(['light', 'dark', 'system'] as const).map((theme) => (
                       <Command.Item
                         key={theme}
                         className="item"
                         onSelect={() => {
                           setSearch('');
-                          updateConfig('theme', theme);
+                          configStore.update('theme', theme);
                         }}
                       >
                         Change theme to {theme}

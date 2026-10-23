@@ -2,6 +2,9 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
+import { createStoreClient } from '../shared/store-client';
+import type { ConfigOptions } from '../shared/config';
+
 export type Channels =
   | 'health-check'
   | 'load-clip-history'
@@ -13,20 +16,15 @@ export type Channels =
   | 'change-theme'
   | 'open-config-file';
 
+const configStoreClient = createStoreClient<ConfigOptions>(
+  ipcRenderer,
+  'config',
+);
+
 const electronHandler = {
   platform: process.platform,
   openConfigFile: () => ipcRenderer.invoke('open-config-file'),
-  configStore: {
-    get(key: string) {
-      return ipcRenderer.invoke('config-store-get', key);
-    },
-    set(key: string, val: unknown) {
-      return ipcRenderer.invoke('config-store-set', key, val);
-    },
-    getAll() {
-      return ipcRenderer.invoke('config-store-get-all');
-    },
-  },
+  configStoreClient: configStoreClient,
   ipcRenderer: {
     invoke(channel: Channels, ...args: unknown[]) {
       return ipcRenderer.invoke(channel, ...args);
