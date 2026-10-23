@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  act,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
+import { useState } from 'react';
 import {
   ConfigProvider,
   useConfig,
@@ -27,6 +34,17 @@ function TestComponent() {
     <div>
       <div data-testid="theme-value">{data.theme || 'no-theme'}</div>
       <button onClick={() => update('theme', 'dark')}>Change to Dark</button>
+    </div>
+  );
+}
+
+function ConfigValues() {
+  const { data } = useConfig();
+  return (
+    <div>
+      <div data-testid="theme-value">{data.theme}</div>
+      <div data-testid="max-history">{data.maxHistory}</div>
+      <div data-testid="window-width">{data.windowSize.width}</div>
     </div>
   );
 }
@@ -59,6 +77,60 @@ describe('StoreContext & Provider', () => {
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
+  it('merges persisted values with defaults when the store is partially populated', async () => {
+    mockGetAll.mockResolvedValue({ theme: 'light' });
+
+    render(
+      <ConfigProvider>
+        <ConfigValues />
+      </ConfigProvider>,
+    );
+
+    expect(await screen.findByTestId('theme-value')).toHaveTextContent('light');
+    expect(screen.getByTestId('max-history')).toHaveTextContent('10000');
+    expect(screen.getByTestId('window-width')).toHaveTextContent('600');
+  });
+
+  it('renders defaults when the store is empty', async () => {
+    mockGetAll.mockResolvedValue({});
+
+    render(
+      <ConfigProvider>
+        <ConfigValues />
+      </ConfigProvider>,
+    );
+
+    expect(await screen.findByTestId('theme-value')).toHaveTextContent(
+      'system',
+    );
+    expect(screen.getByTestId('max-history')).toHaveTextContent('10000');
+  });
+
+  it('logs load failures and renders defaults rather than remaining in loading state', async () => {
+    const error = new Error('IPC unavailable');
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    mockGetAll.mockRejectedValue(error);
+
+    render(
+      <ConfigProvider>
+        <ConfigValues />
+      </ConfigProvider>,
+    );
+
+    expect(await screen.findByTestId('theme-value')).toHaveTextContent(
+      'system',
+    );
+    expect(screen.queryByText(/loading config/i)).not.toBeInTheDocument();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to load store [Config]:',
+      error,
+    );
+
+    consoleSpy.mockRestore();
+  });
+
   it('optimistically updates state and triggers an Electron store write', async () => {
     mockGetAll.mockResolvedValue({ theme: 'light' });
     mockSet.mockResolvedValue(undefined);
@@ -83,6 +155,49 @@ describe('StoreContext & Provider', () => {
     // Assert: The Electron store client was called to persist the value
     expect(mockSet).toHaveBeenCalledTimes(1);
     expect(mockSet).toHaveBeenCalledWith('theme', 'dark');
+  });
+
+  it('keeps the optimistic value and rejects when persisting an update fails', async () => {
+    const error = new Error('Write failed');
+    mockGetAll.mockResolvedValue({ theme: 'light' });
+    mockSet.mockRejectedValue(error);
+
+    function UpdateWithErrorCapture() {
+      const { data, update } = useConfig();
+      const [message, setMessage] = useState('');
+
+      return (
+        <div>
+          <div data-testid="theme-value">{data.theme}</div>
+          <div data-testid="write-error">{message}</div>
+          <button
+            onClick={() => {
+              void update('theme', 'dark').catch((writeError: Error) =>
+                setMessage(writeError.message),
+              );
+            }}
+          >
+            Change to Dark
+          </button>
+        </div>
+      );
+    }
+
+    render(
+      <ConfigProvider>
+        <UpdateWithErrorCapture />
+      </ConfigProvider>,
+    );
+
+    expect(await screen.findByTestId('theme-value')).toHaveTextContent('light');
+    fireEvent.click(screen.getByRole('button', { name: 'Change to Dark' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('write-error')).toHaveTextContent(
+        'Write failed',
+      );
+    });
+    expect(screen.getByTestId('theme-value')).toHaveTextContent('dark');
   });
 
   it('throws an explicit, descriptive error when useConfig is used outside a Provider', () => {
