@@ -1,5 +1,5 @@
 /** @jest-environment node */
-const ClipHistoryDB = require('../../../main/database/clip-history').default;
+const ClipHistoryDB = require('../../main/database/clip-history').default;
 
 type ClipRow = { id: number; content: string; createdAt: string };
 type ClipHistory = {
