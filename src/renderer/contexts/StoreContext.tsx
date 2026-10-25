@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react';
 import { RendererStoreClient } from '../../shared/store-client';
@@ -18,16 +19,25 @@ interface GenericContextType<T extends Record<string, any>> {
  * A generalized factory that generates a type-safe React Context, Provider,
  * and Hook for any Electron-backed store.
  *
+ * The Provider loads the store on mount and renders a loading message until
+ * it resolves. The hook exposes `data` and `update(key, value)`. `update`
+ * applies the change to state immediately, then persists it; if persisting
+ * fails, it rolls the key back to its previous value and rejects.
+ *
  * @template T - The schema definition object shape of the specific store contents.
- * @param client - The specific electron API client from window.electronAPI.
- * @param defaultValues - Fallback state used while loading from disk.
- * @param displayName - Name displayed in loading messages and React DevTools.
- * @returns - an array wrapping the context provider and a useStoreContext hook.
+ * @param client - The store client from window.electron, or a function that
+ *   returns it. Pass a function that returns the client to defer the lookup until the
+ *   client is used.
+ * @param defaultValues - Initial state. Loaded values are merged over it, and
+ *   it is used as-is if loading fails.
+ * @param displayName - Used in the loading message, error logs, and the hook's
+ *   "use{displayName} must be used within a {displayName}Provider" error.
+ * @returns A `[Provider, useStore]` tuple.
  * @example
- * const [myProvider, useMyContext] = createStoreContext<MyStoreType>(
- *   window.electron.myStoreClient,
+ * const [MyStoreProvider, useMyStore] = createStoreContext<MyStoreType>(
+ *   () => window.electron.myStoreClient,
  *   myDefaults,
- *   'My store',
+ *   'MyStore',
  * );
  */
 export function createStoreContext<T extends Record<string, any>>(
@@ -59,10 +69,24 @@ export function createStoreContext<T extends Record<string, any>>(
       bootstrap();
     }, []);
 
+    // Mirrors the latest rendered data so `update` can
+    // capture the value to roll back to
+    const currentDataRef = useRef(data);
+    currentDataRef.current = data;
+
     const update = useCallback(
       async <K extends keyof T>(key: K, value: T[K]) => {
+        const previous = currentDataRef.current[key];
         setData((prev) => ({ ...prev, [key]: value }));
-        await getClient().set(key, value);
+        try {
+          await getClient().set(key, value);
+        } catch (error) {
+          // Roll back unless a newer update to this key has already landed
+          setData((prev) =>
+            prev[key] === value ? { ...prev, [key]: previous } : prev,
+          );
+          throw error;
+        }
       },
       [],
     );

@@ -157,7 +157,7 @@ describe('StoreContext & Provider', () => {
     expect(mockSet).toHaveBeenCalledWith('theme', 'dark');
   });
 
-  it('keeps the optimistic value and rejects when persisting an update fails', async () => {
+  it('rolls back the optimistic value and rejects when persisting an update fails', async () => {
     const error = new Error('Write failed');
     mockGetAll.mockResolvedValue({ theme: 'light' });
     mockSet.mockRejectedValue(error);
@@ -197,7 +197,7 @@ describe('StoreContext & Provider', () => {
         'Write failed',
       );
     });
-    expect(screen.getByTestId('theme-value')).toHaveTextContent('dark');
+    expect(screen.getByTestId('theme-value')).toHaveTextContent('light');
   });
 
   it('throws an explicit, descriptive error when useConfig is used outside a Provider', () => {

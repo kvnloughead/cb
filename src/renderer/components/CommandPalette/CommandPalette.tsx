@@ -96,7 +96,11 @@ const CommandPalette = () => {
                           search={search}
                           onSelect={() => {
                             setSearch('');
-                            configStore.update('theme', theme);
+                            configStore
+                              .update('theme', theme)
+                              .catch((error) =>
+                                console.error('Failed to update theme:', error),
+                              );
                           }}
                         >
                           Change theme to {theme}
@@ -120,7 +124,11 @@ const CommandPalette = () => {
                         className="item"
                         onSelect={() => {
                           setSearch('');
-                          configStore.update('theme', theme);
+                          configStore
+                            .update('theme', theme)
+                            .catch((error) =>
+                              console.error('Failed to update theme:', error),
+                            );
                         }}
                       >
                         Change theme to {theme}
