@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { getAssetPath, resolveHtmlPath } from '../../../main/path';
+import { getAssetPath, resolveHtmlPath } from '../../main/path';
 
 jest.mock('electron', () => ({
   app: {

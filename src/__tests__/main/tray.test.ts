@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import type { MenuItem, MenuItemConstructorOptions } from 'electron';
-import { createTray, type CreateTrayOptions } from '../../../main/tray';
+import { createTray, type CreateTrayOptions } from '../../main/tray';
 
 const mockTrayInstance = {
   setToolTip: jest.fn(),
