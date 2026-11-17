@@ -90,6 +90,17 @@ setStoreHandlers(ipcMain, 'config', configStore);
 ipcMain.handle('open-config-file', () => {
   return shell.openPath(path.join(app.getPath('userData'), 'config.json'));
 });
+
+/* --------------------------- Snippet Store -------------------------- */
+const snippetsStore = new Store({
+  name: 'snippets',
+  rootSchema: { additionalProperties: { type: 'string' } },
+});
+setStoreHandlers(ipcMain, 'snippets', snippetsStore);
+
+ipcMain.handle('open-snippets-file', () => {
+  return shell.openPath(path.join(app.getPath('userData'), 'snippets.json'));
+});
 /* -------------------------------------------------------------------------- */
 
 const createWindow = async (

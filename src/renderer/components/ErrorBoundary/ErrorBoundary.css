@@ -1,0 +1,23 @@
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 16px;
+  text-align: center;
+  font-family: var(--primary-font-family);
+  font-size: 28px;
+  margin-top: 22vh;
+}
+
+.error-boundary__actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    border: var(--solid-border-gray);
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+}

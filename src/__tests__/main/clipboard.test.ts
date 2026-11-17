@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { startClipboardTracker } from '../../../main/clipboard';
+import { startClipboardTracker } from '../../main/clipboard';
 
 describe('startClipboardTracker', () => {
   afterEach(() => {

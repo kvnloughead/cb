@@ -40,3 +40,5 @@ export const ConfigOptionsSchema: Schema<ConfigOptions> = {
     default: configDefaults.windowSize,
   },
 };
+
+export type Snippets = Record<string, string>;

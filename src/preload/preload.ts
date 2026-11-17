@@ -3,7 +3,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 import { createStoreClient } from '../shared/store-client';
-import type { ConfigOptions } from '../shared/config';
+import type { ConfigOptions, Snippets } from '../shared/config';
 
 export type Channels =
   | 'health-check'
@@ -20,11 +20,16 @@ const configStoreClient = createStoreClient<ConfigOptions>(
   ipcRenderer,
   'config',
 );
+const snippetsStoreClient = createStoreClient<Snippets>(
+  ipcRenderer,
+  'snippets',
+);
 
 const electronHandler = {
   platform: process.platform,
   openConfigFile: () => ipcRenderer.invoke('open-config-file'),
   configStoreClient: configStoreClient,
+  snippetsStoreClient: snippetsStoreClient,
   ipcRenderer: {
     invoke(channel: Channels, ...args: unknown[]) {
       return ipcRenderer.invoke(channel, ...args);

@@ -244,6 +244,75 @@ async function readHistory(client) {
   );
 }
 
+/** Exercises config and snippets IPC clients and verifies their namespaces stay isolated. */
+async function writeStoreFixtures(client, snippetKey, snippetValue) {
+  const result = await client.evaluate(`(async () => {
+    const config = window.electron.configStoreClient;
+    const snippets = window.electron.snippetsStoreClient;
+    await config.set('theme', 'dark');
+    await snippets.set(${JSON.stringify(snippetKey)}, ${JSON.stringify(snippetValue)});
+    return {
+      theme: await config.get('theme'),
+      snippet: await snippets.get(${JSON.stringify(snippetKey)}),
+      configHasSnippet: await config.has(${JSON.stringify(snippetKey)}),
+      snippetsHasTheme: await snippets.has('theme'),
+      configValues: await config.getAll(),
+      snippetValues: await snippets.getAll(),
+    };
+  })()`);
+
+  assert.equal(result.theme, 'dark');
+  assert.equal(result.snippet, snippetValue);
+  assert.equal(result.configHasSnippet, false);
+  assert.equal(result.snippetsHasTheme, false);
+  assert.equal(result.configValues.theme, 'dark');
+  assert.deepEqual(result.snippetValues, { [snippetKey]: snippetValue });
+}
+
+/** Confirms store values persist and remain isolated after relaunch. */
+async function verifyStorePersistence(client, child, snippetKey, snippetValue) {
+  const result = await waitFor(
+    async () => {
+      const persisted = await client.evaluate(`(async () => {
+        const config = window.electron.configStoreClient;
+        const snippets = window.electron.snippetsStoreClient;
+        return {
+          theme: await config.get('theme'),
+          snippet: await snippets.get(${JSON.stringify(snippetKey)}),
+          configHasSnippet: await config.has(${JSON.stringify(snippetKey)}),
+          snippetsHasTheme: await snippets.has('theme'),
+        };
+      })()`);
+      return persisted.theme === 'dark' &&
+        persisted.snippet === snippetValue &&
+        !persisted.configHasSnippet &&
+        !persisted.snippetsHasTheme
+        ? persisted
+        : null;
+    },
+    'config and snippets to persist after relaunch',
+    child,
+  );
+
+  assert.deepEqual(result, {
+    theme: 'dark',
+    snippet: snippetValue,
+    configHasSnippet: false,
+    snippetsHasTheme: false,
+  });
+
+  const deleted = await client.evaluate(`(async () => {
+    const snippets = window.electron.snippetsStoreClient;
+    await snippets.delete(${JSON.stringify(snippetKey)});
+    return snippets.has(${JSON.stringify(snippetKey)});
+  })()`);
+  assert.equal(
+    deleted,
+    false,
+    'snippet delete should remove the persisted key',
+  );
+}
+
 /** Waits for the clipboard poller to persist a particular value. */
 async function waitForClip(client, child, content) {
   return waitFor(
@@ -307,6 +376,8 @@ async function main() {
   const debugPort = await getFreePort();
   const firstClip = `packaged-smoke-older-${process.pid}`;
   const secondClip = `packaged-smoke-newer-${process.pid}`;
+  const snippetKey = `packaged-smoke-${process.pid}`;
+  const snippetValue = `snippet-value-${process.pid}`;
   let child;
   let client;
 
@@ -320,6 +391,7 @@ async function main() {
       ),
       'ok',
     );
+    await writeStoreFixtures(client, snippetKey, snippetValue);
     await waitFor(
       () =>
         client.evaluate(
@@ -399,6 +471,7 @@ async function main() {
     const restartedPort = await getFreePort();
     child = launchApp(executable, restartedPort);
     client = await connectToRenderer(restartedPort, child);
+    await verifyStorePersistence(client, child, snippetKey, snippetValue);
     history = await waitFor(
       async () => {
         const currentHistory = await readHistory(client);
@@ -419,7 +492,7 @@ async function main() {
       'restarted renderer should not throw',
     );
     console.log(
-      'Packaged app smoke test passed: IPC, shortcuts, and history persistence.',
+      'Packaged app smoke test passed: IPC, store isolation and persistence, shortcuts, and history persistence.',
     );
   } finally {
     client?.socket.close();
